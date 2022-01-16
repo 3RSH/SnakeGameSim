@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="view.Form">
+  <grid id="27dc6" binding="mainPanel" layout-manager="BorderLayout" hgap="1" vgap="0">
+    <constraints>
+      <xy x="20" y="20" width="500" height="400"/>
+    </constraints>
+    <properties>
+      <inheritsPopupMenu value="false"/>
+      <maximumSize width="328" height="360"/>
+      <minimumSize width="328" height="360"/>
+      <preferredSize width="328" height="360"/>
+    </properties>
+    <border type="none"/>
+    <children>
+      <grid id="e03e8" binding="menu" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
+        <constraints border-constraint="South"/>
+        <properties>
+          <visible value="true"/>
+        </properties>
+        <border type="none"/>
+        <children>
+          <component id="fbce1" class="javax.swing.JButton" binding="startButton">
+            <constraints/>
+            <properties>
+              <text value="START"/>
+              <visible value="true"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
+      <component id="a673a" class="view.GameField" binding="gameField" custom-create="true">
+        <constraints border-constraint="Center"/>
+        <properties>
+          <background color="-16777216"/>
+          <focusable value="true"/>
+          <maximumSize width="320" height="320"/>
+          <minimumSize width="320" height="320"/>
+          <preferredSize width="320" height="320"/>
+        </properties>
+      </component>
+      <vspacer id="589b4">
+        <constraints border-constraint="East"/>
+      </vspacer>
+      <vspacer id="fb056">
+        <constraints border-constraint="West"/>
+      </vspacer>
+    </children>
+  </grid>
+</form>
