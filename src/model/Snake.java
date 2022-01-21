@@ -1,10 +1,5 @@
 package model;
 
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.image.ImageObserver;
-import javax.swing.ImageIcon;
-
 /**
  * Created by DDerendiaev on 17-Jan-22.
  */
@@ -18,43 +13,25 @@ public class Snake {
   private boolean isLive = true;
   private int size;
   private Direction direction;
-  private Image body;
 
-  //Gamefield params.
-  private final int fieldSizeX;
-  private final int fieldSizeY;
+  //GameField params.
+  private final int fieldCellsX;
+  private final int fieldCellsY;
 
   /**
    * Snake constructor.
    */
-  public Snake(Direction direction, int size, int fieldSizeX, int fieldSizeY) {
+  public Snake(Direction direction, int size, int fieldCellsX, int fieldCellsY) {
     this.direction = direction;
     this.size = size;
-    this.fieldSizeX = fieldSizeX;
-    this.fieldSizeY = fieldSizeY;
+    this.fieldCellsX = fieldCellsX;
+    this.fieldCellsY = fieldCellsY;
 
-    int fieldArea = fieldSizeX * fieldSizeY;
-    snakeX = new int[fieldArea];
-    snakeY = new int[fieldArea];
+    int fieldCellsArea = fieldCellsX * fieldCellsY;
+    snakeX = new int[fieldCellsArea];
+    snakeY = new int[fieldCellsArea];
 
     init();
-  }
-
-  /**
-   * Direction emun.
-   */
-  public enum Direction {
-    RIGHT, DOWN, LEFT, UP
-  }
-
-  /**
-   * Draw snake.
-   */
-  public void draw(Graphics g, ImageObserver observer) {
-    for (int i = 0; i < size; i++) {
-      g.drawImage(body, snakeX[i], snakeY[i], observer);
-    }
-
   }
 
   /**
@@ -95,23 +72,15 @@ public class Snake {
       }
     }
 
-    if (snakeX[0] > (fieldSizeX * CELL_SIZE) - CELL_SIZE) {
+    if (snakeX[0] > (fieldCellsX * CELL_SIZE) - CELL_SIZE) {
       isLive = false;
     } else if (snakeX[0] < 0) {
       isLive = false;
-    } else if (snakeY[0] > (fieldSizeY * CELL_SIZE) - CELL_SIZE) {
+    } else if (snakeY[0] > (fieldCellsY * CELL_SIZE) - CELL_SIZE) {
       isLive = false;
     } else if (snakeY[0] < 0) {
       isLive = false;
     }
-  }
-
-  public int getHeadX() {
-    return snakeX[0];
-  }
-
-  public int getHeadY() {
-    return snakeY[0];
   }
 
   public boolean isLive() {
@@ -126,12 +95,29 @@ public class Snake {
     this.direction = direction;
   }
 
+  public int getSize() {
+    return size;
+  }
+
+  public int[] getSnakeX() {
+    return snakeX;
+  }
+
+  public int[] getSnakeY() {
+    return snakeY;
+  }
+
   private void init() {
     for (int i = 0; i < size; i++) {
-      snakeX[i] = -i * CELL_SIZE;
-      snakeY[i] = ((fieldSizeX / 2) - 1) * CELL_SIZE;
+      snakeX[i] = 32 - i * CELL_SIZE;
+      snakeY[i] = 0;
     }
+  }
 
-    body = new ImageIcon("snake.png").getImage();
+  /**
+   * Direction emun.
+   */
+  public enum Direction {
+    RIGHT, DOWN, LEFT, UP
   }
 }
