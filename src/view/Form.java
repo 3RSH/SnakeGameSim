@@ -50,7 +50,9 @@ public class Form {
 
       @Override
       public void actionPerformed(ActionEvent e) {
-        gameField.init();
+        if (!gameField.isInGame()) {
+          gameField.init();
+        }
       }
     });
 

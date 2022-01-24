@@ -22,28 +22,29 @@
           <component id="fbce1" class="javax.swing.JButton" binding="startButton">
             <constraints/>
             <properties>
+              <hideActionText value="false"/>
               <text value="START"/>
               <visible value="true"/>
             </properties>
           </component>
         </children>
       </grid>
-      <component id="a673a" class="view.GameField" binding="gameField" custom-create="true">
-        <constraints border-constraint="Center"/>
-        <properties>
-          <background color="-16777216"/>
-          <focusable value="true"/>
-          <maximumSize width="320" height="320"/>
-          <minimumSize width="320" height="320"/>
-          <preferredSize width="320" height="320"/>
-        </properties>
-      </component>
       <vspacer id="589b4">
         <constraints border-constraint="East"/>
       </vspacer>
       <vspacer id="fb056">
         <constraints border-constraint="West"/>
       </vspacer>
+      <component id="a2004" class="view.GameField" binding="gameField" custom-create="true">
+        <constraints border-constraint="Center"/>
+        <properties>
+          <background color="-16777216"/>
+          <foreground color="-4473925"/>
+          <maximumSize width="320" height="320"/>
+          <minimumSize width="320" height="320"/>
+          <preferredSize width="320" height="320"/>
+        </properties>
+      </component>
     </children>
   </grid>
 </form>
