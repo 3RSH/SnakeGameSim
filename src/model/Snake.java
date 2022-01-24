@@ -5,6 +5,7 @@ package model;
  */
 public class Snake {
 
+  //Global param.
   private static final int CELL_SIZE = 16;
 
   //Snake params.
@@ -13,6 +14,7 @@ public class Snake {
   private boolean isLive = true;
   private int size;
   private Direction direction;
+  private int stepCounter;
 
   //GameField params.
   private final int fieldCellsX;
@@ -43,15 +45,17 @@ public class Snake {
       snakeY[i] = snakeY[i - 1];
     }
 
-    if (direction.equals(Direction.LEFT)) {
+    if (direction == Direction.LEFT) {
       snakeX[0] -= CELL_SIZE;
-    } else if (direction.equals(Direction.RIGHT)) {
+    } else if (direction == Direction.RIGHT) {
       snakeX[0] += CELL_SIZE;
-    } else if (direction.equals(Direction.UP)) {
+    } else if (direction == Direction.UP) {
       snakeY[0] -= CELL_SIZE;
-    } else if (direction.equals(Direction.DOWN)) {
+    } else if (direction == Direction.DOWN) {
       snakeY[0] += CELL_SIZE;
     }
+
+    stepCounter++;
   }
 
   /**
@@ -83,17 +87,20 @@ public class Snake {
     }
   }
 
+  /**
+   * Set snake direction.
+   */
+  public void setDirection(Direction direction) {
+    if (canChangeDirection(direction)) {
+      this.direction = direction;
+      stepCounter = 0;
+    }
+  }
+
   public boolean isLive() {
     return isLive;
   }
 
-  public Direction getDirection() {
-    return direction;
-  }
-
-  public void setDirection(Direction direction) {
-    this.direction = direction;
-  }
 
   public int getSize() {
     return size;
@@ -112,6 +119,27 @@ public class Snake {
       snakeX[i] = 32 - i * CELL_SIZE;
       snakeY[i] = 0;
     }
+  }
+
+  private boolean canChangeDirection(Direction direction) {
+    boolean upCondition =
+        direction == Direction.UP
+            && this.direction != Direction.DOWN
+            && stepCounter > 0;
+    boolean downCondition =
+        direction == Direction.DOWN
+            && this.direction != Direction.UP
+            && stepCounter > 0;
+    boolean rightCondition =
+        direction == Direction.RIGHT
+            && this.direction != Direction.LEFT
+            && stepCounter > 0;
+    boolean leftCondition =
+        direction == Direction.LEFT
+            && this.direction != Direction.RIGHT
+            && stepCounter > 0;
+
+    return upCondition || downCondition || rightCondition || leftCondition;
   }
 
   /**

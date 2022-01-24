@@ -11,19 +11,25 @@ import view.GameField;
 public class SnakeController {
 
   private final GameField gameField;
-  private final Snake snake;
+  private Snake snake;
 
+  /**
+   * Snake controller constructor.
+   */
   public SnakeController(GameField gameField) {
     this.gameField = gameField;
-    snake = new Snake(Direction.RIGHT, 3, 20, 20);
   }
 
-  public void initThread() {
+  /**
+   * Snake controller initialization.
+   */
+  public void init() {
+    snake = new Snake(Direction.RIGHT, 3, 20, 20);
     SnakeThread snakeThread = new SnakeThread(snake, this);
     new Thread(snakeThread).start();
   }
 
-  public void repaintSnake() {
+  public void repaint() {
     gameField.repaint();
   }
 
@@ -31,27 +37,23 @@ public class SnakeController {
     snake.setDirection(direction);
   }
 
-  public int getSnakeSize() {
+  public int getSize() {
     return snake.getSize();
   }
 
-  public int[] getSnakeX() {
+  public int[] getX() {
     return snake.getSnakeX();
   }
 
-  public int[] getSnakeY() {
+  public int[] getY() {
     return snake.getSnakeY();
   }
 
-  public boolean snakeIsLive() {
+  public boolean isLive() {
     return snake.isLive();
   }
 
-  public Direction getSnakeDirection() {
-    return snake.getDirection();
-  }
-
-  public void growSnake() {
+  public void grow() {
     snake.growSnake();
   }
 }
