@@ -1,4 +1,4 @@
-package model;
+package ru.derendiaev.model;
 
 /**
  * Created by DDerendiaev on 17-Jan-22.
@@ -11,6 +11,7 @@ public class Snake {
   //Snake params.
   private final int[] snakeX;
   private final int[] snakeY;
+  private final int startSize;
   private boolean isLive = true;
   private int size;
   private Direction direction;
@@ -23,17 +24,14 @@ public class Snake {
   /**
    * Snake constructor.
    */
-  public Snake(Direction direction, int size, int fieldCellsX, int fieldCellsY) {
-    this.direction = direction;
-    this.size = size;
+  public Snake(int size, int fieldCellsX, int fieldCellsY) {
+    this.startSize = size;
     this.fieldCellsX = fieldCellsX;
     this.fieldCellsY = fieldCellsY;
 
     int fieldCellsArea = fieldCellsX * fieldCellsY;
     snakeX = new int[fieldCellsArea];
     snakeY = new int[fieldCellsArea];
-
-    init();
   }
 
   /**
@@ -56,6 +54,7 @@ public class Snake {
     }
 
     stepCounter++;
+    checkCollisions();
   }
 
   /**
@@ -63,28 +62,6 @@ public class Snake {
    */
   public void growSnake() {
     size++;
-  }
-
-  /**
-   * Check snake collisions.
-   */
-  public void checkCollisions() {
-    for (int i = size; i > 0; i--) {
-      if (snakeX[0] == snakeX[i] && snakeY[0] == snakeY[i]) {
-        isLive = false;
-        break;
-      }
-    }
-
-    if (snakeX[0] > (fieldCellsX * CELL_SIZE) - CELL_SIZE) {
-      isLive = false;
-    } else if (snakeX[0] < 0) {
-      isLive = false;
-    } else if (snakeY[0] > (fieldCellsY * CELL_SIZE) - CELL_SIZE) {
-      isLive = false;
-    } else if (snakeY[0] < 0) {
-      isLive = false;
-    }
   }
 
   /**
@@ -101,7 +78,6 @@ public class Snake {
     return isLive;
   }
 
-
   public int getSize() {
     return size;
   }
@@ -114,10 +90,44 @@ public class Snake {
     return snakeY;
   }
 
-  private void init() {
+  public int getHeadX() {
+    return snakeX[0];
+  }
+
+  public int getHeadY() {
+    return snakeY[0];
+  }
+
+  /**
+   * Snake initialization method.
+   */
+  public void init() {
+    size = startSize;
+    isLive = true;
+    direction = Direction.RIGHT;
+
     for (int i = 0; i < size; i++) {
-      snakeX[i] = 32 - i * CELL_SIZE;
+      snakeX[i] = size * CELL_SIZE - (i + 1) * CELL_SIZE;
       snakeY[i] = 0;
+    }
+  }
+
+  private void checkCollisions() {
+    for (int i = size; i > 0; i--) {
+      if (snakeX[0] == snakeX[i] && snakeY[0] == snakeY[i]) {
+        isLive = false;
+        break;
+      }
+    }
+
+    if (snakeX[0] > (fieldCellsX * CELL_SIZE) - CELL_SIZE) {
+      isLive = false;
+    } else if (snakeX[0] < 0) {
+      isLive = false;
+    } else if (snakeY[0] > (fieldCellsY * CELL_SIZE) - CELL_SIZE) {
+      isLive = false;
+    } else if (snakeY[0] < 0) {
+      isLive = false;
     }
   }
 

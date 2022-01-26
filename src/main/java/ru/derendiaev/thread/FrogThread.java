@@ -1,30 +1,27 @@
-package model;
+package ru.derendiaev.thread;
 
 import static java.lang.Thread.sleep;
 
-import controller.FrogController;
+import ru.derendiaev.controller.FrogController;
 
 /**
  * Created by DDerendiaev on 21-Jan-22.
  */
 public class FrogThread implements Runnable {
 
-  private final Frog frog;
   private final FrogController controller;
 
-  public FrogThread(Frog frog, FrogController controller) {
-    this.frog = frog;
+  public FrogThread(FrogController controller) {
     this.controller = controller;
   }
 
   @Override
   public void run() {
-    while (frog.isLive()) {
-      frog.move();
-      controller.repaint();
+    while (controller.isLive()) {
+      controller.moveFrog();
 
       try {
-        sleep(500);
+        sleep(1000);
       } catch (InterruptedException e) {
         e.printStackTrace();
       }

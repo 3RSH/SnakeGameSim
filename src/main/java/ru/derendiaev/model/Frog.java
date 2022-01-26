@@ -1,4 +1,4 @@
-package model;
+package ru.derendiaev.model;
 
 import java.util.Random;
 
@@ -13,7 +13,7 @@ public class Frog {
   //Frog params.
   private int frogX;
   private int frogY;
-  private boolean isLive = true;
+  private boolean isLive;
 
   //GameField params.
   private final int fieldCellsX;
@@ -28,7 +28,7 @@ public class Frog {
     init();
   }
 
-  public void init() {
+  public void respawn() {
     frogX = (new Random().nextInt(fieldCellsX) * CELL_SIZE);
     frogY = (new Random().nextInt(fieldCellsY) * CELL_SIZE);
   }
@@ -48,6 +48,11 @@ public class Frog {
     } else if (direction == 3 && frogY != 0) {
       frogY -= CELL_SIZE;
     }
+  }
+
+  public void init() {
+    isLive = true;
+    respawn();
   }
 
   public boolean isLive() {

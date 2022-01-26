@@ -1,10 +1,12 @@
-package view;
+package ru.derendiaev.view;
 
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import ru.derendiaev.controller.FrogController;
+import ru.derendiaev.controller.SnakeController;
 
 /**
  * Created by DDerendiaev on 14-Jan-22.
@@ -15,6 +17,14 @@ public class Form {
   private JPanel menu;
   private JButton startButton;
   private GameField gameField;
+
+  private final SnakeController snakeController;
+  private final FrogController frogController;
+
+  public Form(SnakeController snakeController, FrogController frogController) {
+    this.snakeController = snakeController;
+    this.frogController = frogController;
+  }
 
   JPanel getMainPanel() {
     startButton.addActionListener(new Action() {
@@ -61,6 +71,6 @@ public class Form {
 
   //for CheckStyle: IDE generated method
   private void createUIComponents() {
-    gameField = new GameField();
+    gameField = new GameField(snakeController, frogController);
   }
 }
