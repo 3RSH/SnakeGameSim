@@ -2,6 +2,7 @@ package ru.derendiaev.view;
 
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeListener;
+import java.util.List;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -19,11 +20,11 @@ public class Form {
   private GameField gameField;
 
   private final SnakeController snakeController;
-  private final FrogController frogController;
+  private final List<FrogController> frogControllers;
 
-  public Form(SnakeController snakeController, FrogController frogController) {
+  public Form(SnakeController snakeController, List<FrogController> frogControllers) {
     this.snakeController = snakeController;
-    this.frogController = frogController;
+    this.frogControllers = frogControllers;
   }
 
   JPanel getMainPanel() {
@@ -71,6 +72,6 @@ public class Form {
 
   //for CheckStyle: IDE generated method
   private void createUIComponents() {
-    gameField = new GameField(snakeController, frogController);
+    gameField = new GameField(snakeController, frogControllers);
   }
 }

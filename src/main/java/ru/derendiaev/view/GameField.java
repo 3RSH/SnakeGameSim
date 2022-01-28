@@ -8,6 +8,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.List;
 import java.util.Objects;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
@@ -32,23 +33,23 @@ public class GameField extends JPanel implements PropertyChangeListener {
   private Image frog;
 
   SnakeController snakeController;
-  FrogController frogController;
+  List<FrogController> frogControllers;
   Thread snakeThread;
   Thread frogThread;
 
   /**
    * Game field constructor.
    */
-  public GameField(SnakeController snakeController, FrogController frogController) {
+  public GameField(SnakeController snakeController, List<FrogController> frogControllers) {
     this.snakeController = snakeController;
-    this.frogController = frogController;
+    this.frogControllers = frogControllers;
     loadImages();
     init();
     addKeyListener(new KeyListener());
   }
 
   @Override
-  protected void paintComponent(Graphics g) {
+  public void paintComponent(Graphics g) {
     if (!isFocusOwner()) {
       requestFocus();
     }
@@ -56,42 +57,10 @@ public class GameField extends JPanel implements PropertyChangeListener {
     inGame = snakeController.isLive();
 
     if (inGame) {
-      super.paintComponent(g);
-
-      int frogX = frogController.getX();
-      int frogY = frogController.getY();
-
-      g.drawImage(frog, frogX, frogY, this);
-
-      int[] snakeX = snakeController.getX();
-      int[] snakeY = snakeController.getY();
-      int snakeSize = snakeController.getSize();
-
-      for (int i = 0; i < snakeSize; i++) {
-        if (i == 0) {
-          g.drawImage(head, snakeX[i], snakeY[i], this);
-        } else if (i == (snakeSize - 1)) {
-          g.drawImage(tail, snakeX[i], snakeY[i], this);
-        } else {
-          g.drawImage(body, snakeX[i], snakeY[i], this);
-        }
-      }
-
-      if (frogX == snakeX[0] && frogY == snakeY[0]) {
-        frogController.respawnFrog();
-        snakeController.grow();
-      }
-
-
+      paintGameField(g);
     } else {
-      frogController.kill();
-      String message = "Game Over";
-      Font font = new Font("Monospaced", Font.BOLD, 20);
-      g.setColor(Color.white);
-      g.setFont(font);
-      g.drawString(message, 110, CELL_SIZE * SIZE / 2);
+      paintGameOver(g);
     }
-
   }
 
   /**
@@ -100,13 +69,16 @@ public class GameField extends JPanel implements PropertyChangeListener {
   public void init() {
     inGame = true;
     snakeController.addPropertyChangeListener(this);
-    frogController.addPropertyChangeListener(this);
     snakeController.initSnake();
-    frogController.initFrog();
     snakeThread = new Thread(new SnakeThread(snakeController));
-    frogThread = new Thread(new FrogThread(frogController));
     snakeThread.start();
-    frogThread.start();
+
+    for (FrogController frogController : frogControllers) {
+      frogController.addPropertyChangeListener(this);
+      frogController.initFrog();
+      frogThread = new Thread(new FrogThread(frogController));
+      frogThread.start();
+    }
   }
 
   public boolean isInGame() {
@@ -136,6 +108,48 @@ public class GameField extends JPanel implements PropertyChangeListener {
   @Override
   public void propertyChange(PropertyChangeEvent evt) {
     repaint();
+  }
+
+  private void paintSnake(Graphics g, int[] snakeX, int[] snakeY) {
+    int snakeSize = snakeController.getSize();
+
+    for (int i = 0; i < snakeSize; i++) {
+      if (i == 0) {
+        g.drawImage(head, snakeX[i], snakeY[i], this);
+      } else if (i == (snakeSize - 1)) {
+        g.drawImage(tail, snakeX[i], snakeY[i], this);
+      } else {
+        g.drawImage(body, snakeX[i], snakeY[i], this);
+      }
+    }
+  }
+
+  private void paintGameField(Graphics g) {
+    super.paintComponent(g);
+    int[] snakeX = snakeController.getX();
+    int[] snakeY = snakeController.getY();
+
+    for (FrogController frogController : frogControllers) {
+      int frogX = frogController.getX();
+      int frogY = frogController.getY();
+      g.drawImage(frog, frogX, frogY, this);
+
+      if (frogX == snakeX[0] && frogY == snakeY[0]) {
+        frogController.respawnFrog();
+        snakeController.grow();
+      }
+    }
+
+    paintSnake(g, snakeX, snakeY);
+  }
+
+  private void paintGameOver(Graphics g) {
+    frogControllers.forEach(FrogController::kill);
+    String message = "Game Over";
+    Font font = new Font("Monospaced", Font.BOLD, 20);
+    g.setColor(Color.white);
+    g.setFont(font);
+    g.drawString(message, 110, CELL_SIZE * SIZE / 2);
   }
 
 

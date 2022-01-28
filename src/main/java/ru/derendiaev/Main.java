@@ -1,5 +1,8 @@
 package ru.derendiaev;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import javax.swing.SwingUtilities;
 import ru.derendiaev.controller.FrogController;
 import ru.derendiaev.controller.SnakeController;
@@ -19,10 +22,16 @@ public class Main {
     Snake snake = new Snake(3, 20, 20);
     SnakeController snakeController = new SnakeController(snake);
 
-    Frog frog = new Frog(20, 20);
-    FrogController frogController = new FrogController(frog);
+    List<Frog> frogs = new ArrayList<>();
 
-    Window window = new Window(snakeController, frogController);
+    for (int i = 0; i < 3; i++) {
+      frogs.add(new Frog(20, 20));
+    }
+
+    List<FrogController> frogControllers =
+        frogs.stream().map(FrogController::new).collect(Collectors.toList());
+
+    Window window = new Window(snakeController, frogControllers);
 
     SwingUtilities.invokeLater(window::init);
   }

@@ -10,6 +10,7 @@ import ru.derendiaev.model.Snake.Direction;
  */
 public class SnakeController {
 
+
   private final Snake snake;
   private final PropertyChangeSupport support;
 

@@ -1,5 +1,6 @@
 package ru.derendiaev.view;
 
+import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 import ru.derendiaev.controller.FrogController;
@@ -10,24 +11,22 @@ import ru.derendiaev.controller.SnakeController;
  */
 public class Window extends JFrame {
 
-  private Form form;
-
   SnakeController snakeController;
-  FrogController frogController;
+  List<FrogController> frogControllers;
 
   /**
    * ru.derendiaev.Main window constructor.
    */
-  public Window(SnakeController snakeController, FrogController frogController) {
+  public Window(SnakeController snakeController, List<FrogController> frogControllers) {
     this.snakeController = snakeController;
-    this.frogController = frogController;
+    this.frogControllers = frogControllers;
   }
 
   /**
    * Window initialization method.
    */
   public void init() {
-    form = new Form(snakeController, frogController);
+    Form form = new Form(snakeController, frogControllers);
 
     setTitle("Змейка");
     setSize(
