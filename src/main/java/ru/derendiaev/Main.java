@@ -19,13 +19,18 @@ public class Main {
    * Main(input-point) method.
    */
   public static void main(String[] args) {
-    Snake snake = new Snake(3, 20, 20);
+    int cellSize = 16;
+    int fieldCellsX = 20;
+    int fieldCellsY = 20;
+    int snakeSize = 3;
+
+    Snake snake = new Snake(cellSize, fieldCellsX, fieldCellsY, snakeSize);
     SnakeController snakeController = new SnakeController(snake);
 
     List<Frog> frogs = new ArrayList<>();
 
     for (int i = 0; i < 3; i++) {
-      frogs.add(new Frog(20, 20));
+      frogs.add(new Frog(cellSize, fieldCellsX, fieldCellsY));
     }
 
     List<FrogController> frogControllers =

@@ -22,6 +22,10 @@ public class SnakeController {
     support = new PropertyChangeSupport(this);
   }
 
+  public Direction getDirection() {
+    return snake.getDirection();
+  }
+
   public void changeDirection(Direction direction) {
     snake.setDirection(direction);
   }
@@ -48,6 +52,10 @@ public class SnakeController {
 
   public void initSnake() {
     snake.init();
+  }
+
+  public int[] getFieldParams() {
+    return new int[]{snake.getCellSize(), snake.getFieldCellsX(), snake.getFieldCellsY()};
   }
 
   /**

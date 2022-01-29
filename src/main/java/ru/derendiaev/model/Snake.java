@@ -5,9 +5,6 @@ package ru.derendiaev.model;
  */
 public class Snake {
 
-  //Global param.
-  private static final int CELL_SIZE = 16;
-
   //Snake params.
   private final int[] snakeX;
   private final int[] snakeY;
@@ -18,16 +15,18 @@ public class Snake {
   private int stepCounter;
 
   //GameField params.
+  private final int cellSize;
   private final int fieldCellsX;
   private final int fieldCellsY;
 
   /**
    * Snake constructor.
    */
-  public Snake(int size, int fieldCellsX, int fieldCellsY) {
-    this.startSize = size;
+  public Snake(int cellSize, int fieldCellsX, int fieldCellsY, int size) {
+    this.cellSize = cellSize;
     this.fieldCellsX = fieldCellsX;
     this.fieldCellsY = fieldCellsY;
+    this.startSize = size;
 
     int fieldCellsArea = fieldCellsX * fieldCellsY;
     snakeX = new int[fieldCellsArea];
@@ -44,13 +43,13 @@ public class Snake {
     }
 
     if (direction == Direction.LEFT) {
-      snakeX[0] -= CELL_SIZE;
+      snakeX[0] -= cellSize;
     } else if (direction == Direction.RIGHT) {
-      snakeX[0] += CELL_SIZE;
+      snakeX[0] += cellSize;
     } else if (direction == Direction.UP) {
-      snakeY[0] -= CELL_SIZE;
+      snakeY[0] -= cellSize;
     } else if (direction == Direction.DOWN) {
-      snakeY[0] += CELL_SIZE;
+      snakeY[0] += cellSize;
     }
 
     stepCounter++;
@@ -98,6 +97,22 @@ public class Snake {
     return snakeY[0];
   }
 
+  public int getFieldCellsX() {
+    return fieldCellsX;
+  }
+
+  public int getFieldCellsY() {
+    return fieldCellsY;
+  }
+
+  public int getCellSize() {
+    return cellSize;
+  }
+
+  public Direction getDirection() {
+    return direction;
+  }
+
   /**
    * Snake initialization method.
    */
@@ -107,7 +122,7 @@ public class Snake {
     direction = Direction.RIGHT;
 
     for (int i = 0; i < size; i++) {
-      snakeX[i] = size * CELL_SIZE - (i + 1) * CELL_SIZE;
+      snakeX[i] = size * cellSize - (i + 1) * cellSize;
       snakeY[i] = 0;
     }
   }
@@ -120,11 +135,11 @@ public class Snake {
       }
     }
 
-    if (snakeX[0] > (fieldCellsX * CELL_SIZE) - CELL_SIZE) {
+    if (snakeX[0] > (fieldCellsX * cellSize) - cellSize) {
       isLive = false;
     } else if (snakeX[0] < 0) {
       isLive = false;
-    } else if (snakeY[0] > (fieldCellsY * CELL_SIZE) - CELL_SIZE) {
+    } else if (snakeY[0] > (fieldCellsY * cellSize) - cellSize) {
       isLive = false;
     } else if (snakeY[0] < 0) {
       isLive = false;

@@ -1,11 +1,12 @@
 package ru.derendiaev.view;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
@@ -23,8 +24,9 @@ import ru.derendiaev.thread.SnakeThread;
  */
 public class GameField extends JPanel implements PropertyChangeListener {
 
-  private static final int CELL_SIZE = 16;
-  private static final int SIZE = 20;
+  private final int cellSize;
+  private final int fieldCellsX;
+  private final int fieldCellsY;
 
   private boolean inGame;
   private Image head;
@@ -43,9 +45,20 @@ public class GameField extends JPanel implements PropertyChangeListener {
   public GameField(SnakeController snakeController, List<FrogController> frogControllers) {
     this.snakeController = snakeController;
     this.frogControllers = frogControllers;
+
+    cellSize = snakeController.getFieldParams()[0];
+    fieldCellsX = snakeController.getFieldParams()[1];
+    fieldCellsY = snakeController.getFieldParams()[2];
+    int sizeX = fieldCellsX * cellSize;
+    int sizeY = fieldCellsY * cellSize;
+
+    Dimension gameFieldDimension = new Dimension(sizeX, sizeY);
+    this.setPreferredSize(gameFieldDimension);
+    this.setMinimumSize(gameFieldDimension);
+    this.setMaximumSize(gameFieldDimension);
     loadImages();
     init();
-    addKeyListener(new KeyListener());
+    addMouseListener(new MouseListener());
   }
 
   @Override
@@ -149,29 +162,43 @@ public class GameField extends JPanel implements PropertyChangeListener {
     Font font = new Font("Monospaced", Font.BOLD, 20);
     g.setColor(Color.white);
     g.setFont(font);
-    g.drawString(message, 110, CELL_SIZE * SIZE / 2);
+    g.drawString(message, (cellSize * fieldCellsX / 2) - 55, cellSize * fieldCellsY / 2);
   }
 
 
-  private class KeyListener extends KeyAdapter {
+  private class MouseListener extends MouseAdapter {
 
     @Override
-    public void keyPressed(KeyEvent e) {
-      super.keyPressed(e);
-      int key = e.getKeyCode();
+    public void mouseClicked(MouseEvent e) {
+      super.mouseClicked(e);
+      int clickedButton = e.getButton();
 
-      if (key == KeyEvent.VK_RIGHT) {
-        snakeController.changeDirection(Direction.RIGHT);
+      Direction direction = snakeController.getDirection();
+
+      if (clickedButton == MouseEvent.BUTTON1) {
+
+        if (direction == Direction.RIGHT) {
+          snakeController.changeDirection(Direction.UP);
+        } else if (direction == Direction.UP) {
+          snakeController.changeDirection(Direction.LEFT);
+        } else if (direction == Direction.LEFT) {
+          snakeController.changeDirection(Direction.DOWN);
+        } else if (direction == Direction.DOWN) {
+          snakeController.changeDirection(Direction.RIGHT);
+        }
+      } else if (clickedButton == MouseEvent.BUTTON3) {
+
+        if (direction == Direction.RIGHT) {
+          snakeController.changeDirection(Direction.DOWN);
+        } else if (direction == Direction.DOWN) {
+          snakeController.changeDirection(Direction.LEFT);
+        } else if (direction == Direction.LEFT) {
+          snakeController.changeDirection(Direction.UP);
+        } else if (direction == Direction.UP) {
+          snakeController.changeDirection(Direction.RIGHT);
+        }
       }
-      if (key == KeyEvent.VK_LEFT) {
-        snakeController.changeDirection(Direction.LEFT);
-      }
-      if (key == KeyEvent.VK_UP) {
-        snakeController.changeDirection(Direction.UP);
-      }
-      if (key == KeyEvent.VK_DOWN) {
-        snakeController.changeDirection(Direction.DOWN);
-      }
+
     }
   }
 }

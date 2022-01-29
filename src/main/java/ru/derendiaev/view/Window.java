@@ -1,5 +1,7 @@
 package ru.derendiaev.view;
 
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
@@ -26,16 +28,22 @@ public class Window extends JFrame {
    * Window initialization method.
    */
   public void init() {
-    Form form = new Form(snakeController, frogControllers);
-
     setTitle("Змейка");
-    setSize(
-        form.getMainPanel().getMinimumSize().width,
-        form.getMainPanel().getMinimumSize().height + 25);
     setResizable(false);
     setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-    setLocationRelativeTo(null);
+
+    Form form = new Form(snakeController, frogControllers);
     add(form.getMainPanel());
+    pack();
+    setCenterPosition();
     setVisible(true);
+  }
+
+  private void setCenterPosition() {
+    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    Dimension frameSize = this.getPreferredSize();
+
+    this.setLocation((screenSize.width - frameSize.width) / 2,
+        (screenSize.height - frameSize.height) / 2);
   }
 }
