@@ -20,8 +20,8 @@ public class Main {
    */
   public static void main(String[] args) {
     int cellSize = 16;
-    int fieldCellsX = 20;
-    int fieldCellsY = 20;
+    int fieldCellsX = 30;
+    int fieldCellsY = 30;
     int snakeSize = 3;
 
     Snake snake = new Snake(cellSize, fieldCellsX, fieldCellsY, snakeSize);
@@ -29,7 +29,7 @@ public class Main {
 
     List<Frog> frogs = new ArrayList<>();
 
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 6; i++) {
       frogs.add(new Frog(cellSize, fieldCellsX, fieldCellsY));
     }
 

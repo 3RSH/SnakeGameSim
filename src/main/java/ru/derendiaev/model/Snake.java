@@ -64,9 +64,36 @@ public class Snake {
   }
 
   /**
-   * Set snake direction.
+   * Snake turn right.
    */
-  public void setDirection(Direction direction) {
+  public void turnRight() {
+    if (direction == Direction.RIGHT) {
+      setDirection(Direction.DOWN);
+    } else if (direction == Direction.DOWN) {
+      setDirection(Direction.LEFT);
+    } else if (direction == Direction.LEFT) {
+      setDirection(Direction.UP);
+    } else if (direction == Direction.UP) {
+      setDirection(Direction.RIGHT);
+    }
+  }
+
+  /**
+   * Snake turn right.
+   */
+  public void turnLeft() {
+    if (direction == Direction.RIGHT) {
+      setDirection(Direction.UP);
+    } else if (direction == Direction.UP) {
+      setDirection(Direction.LEFT);
+    } else if (direction == Direction.LEFT) {
+      setDirection(Direction.DOWN);
+    } else if (direction == Direction.DOWN) {
+      setDirection(Direction.RIGHT);
+    }
+  }
+
+  private void setDirection(Direction direction) {
     if (canChangeDirection(direction)) {
       this.direction = direction;
       stepCounter = 0;
@@ -111,6 +138,10 @@ public class Snake {
 
   public Direction getDirection() {
     return direction;
+  }
+
+  public void setLive(boolean live) {
+    isLive = live;
   }
 
   /**

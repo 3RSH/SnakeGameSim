@@ -1,6 +1,8 @@
 package ru.derendiaev.view;
 
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
 import javax.swing.Action;
@@ -12,23 +14,36 @@ import ru.derendiaev.controller.SnakeController;
 /**
  * Created by DDerendiaev on 14-Jan-22.
  */
-public class Form {
+public class Form implements PropertyChangeListener {
 
   private JPanel mainPanel;
   private JPanel menu;
-  private JButton startButton;
+  private JButton startStopButton;
   private GameField gameField;
 
   private final SnakeController snakeController;
   private final List<FrogController> frogControllers;
 
+  /**
+   * Main form constructor.
+   */
   public Form(SnakeController snakeController, List<FrogController> frogControllers) {
     this.snakeController = snakeController;
     this.frogControllers = frogControllers;
+    snakeController.addPropertyChangeListener(this);
+  }
+
+  @Override
+  public void propertyChange(PropertyChangeEvent evt) {
+    if (!snakeController.isLive()) {
+      startStopButton.setText("START");
+    }
   }
 
   JPanel getMainPanel() {
-    startButton.addActionListener(new Action() {
+    startStopButton.setText("START");
+    startStopButton.setPreferredSize(new Dimension(78, 30));
+    startStopButton.addActionListener(new Action() {
       @Override
       public Object getValue(String key) {
         return null;
@@ -63,6 +78,10 @@ public class Form {
       public void actionPerformed(ActionEvent e) {
         if (!gameField.isInGame()) {
           gameField.init();
+          startStopButton.setText("STOP");
+        } else {
+          snakeController.killSnake();
+          startStopButton.setText("START");
         }
       }
     });

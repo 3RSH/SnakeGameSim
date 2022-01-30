@@ -26,8 +26,12 @@ public class SnakeController {
     return snake.getDirection();
   }
 
-  public void changeDirection(Direction direction) {
-    snake.setDirection(direction);
+  public void turnRight() {
+    snake.turnRight();
+  }
+
+  public void turnLeft() {
+    snake.turnLeft();
   }
 
   public int getSize() {
@@ -54,6 +58,10 @@ public class SnakeController {
     snake.init();
   }
 
+  public void killSnake() {
+    snake.setLive(false);
+  }
+
   public int[] getFieldParams() {
     return new int[]{snake.getCellSize(), snake.getFieldCellsX(), snake.getFieldCellsY()};
   }
@@ -67,6 +75,7 @@ public class SnakeController {
     snake.move();
     support.firePropertyChange("moveX", oldHeadX, snake.getHeadX());
     support.firePropertyChange("moveY", oldHeadY, snake.getHeadY());
+    support.firePropertyChange("isLive", true, snake.isLive());
   }
 
   public void addPropertyChangeListener(PropertyChangeListener listener) {

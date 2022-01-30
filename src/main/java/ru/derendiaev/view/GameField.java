@@ -11,6 +11,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import ru.derendiaev.controller.FrogController;
@@ -57,8 +59,9 @@ public class GameField extends JPanel implements PropertyChangeListener {
     this.setMinimumSize(gameFieldDimension);
     this.setMaximumSize(gameFieldDimension);
     loadImages();
-    init();
     addMouseListener(new MouseListener());
+
+    snakeController.initSnake();
   }
 
   @Override
@@ -67,11 +70,11 @@ public class GameField extends JPanel implements PropertyChangeListener {
       requestFocus();
     }
 
-    inGame = snakeController.isLive();
-
-    if (inGame) {
+    if (snakeController.isLive()) {
       paintGameField(g);
     } else {
+      frogControllers.forEach(FrogController::kill);
+      inGame = false;
       paintGameOver(g);
     }
   }
@@ -86,11 +89,17 @@ public class GameField extends JPanel implements PropertyChangeListener {
     snakeThread = new Thread(new SnakeThread(snakeController));
     snakeThread.start();
 
-    for (FrogController frogController : frogControllers) {
-      frogController.addPropertyChangeListener(this);
-      frogController.initFrog();
-      frogThread = new Thread(new FrogThread(frogController));
-      frogThread.start();
+    ScheduledThreadPoolExecutor frogExecutor =
+        new ScheduledThreadPoolExecutor(frogControllers.size());
+
+    for (int i = 0; i < frogControllers.size(); i++) {
+      frogControllers.get(i).addPropertyChangeListener(this);
+      frogControllers.get(i).initFrog();
+      frogThread = new Thread(new FrogThread(frogControllers.get(i)));
+      frogExecutor.schedule(
+          frogThread,
+          (i + 1) * 1000L / frogControllers.size(),
+          TimeUnit.MILLISECONDS);
     }
   }
 
@@ -126,15 +135,15 @@ public class GameField extends JPanel implements PropertyChangeListener {
   private void paintSnake(Graphics g, int[] snakeX, int[] snakeY) {
     int snakeSize = snakeController.getSize();
 
-    for (int i = 0; i < snakeSize; i++) {
-      if (i == 0) {
-        g.drawImage(head, snakeX[i], snakeY[i], this);
-      } else if (i == (snakeSize - 1)) {
+    for (int i = 1; i < snakeSize; i++) {
+      if (i == (snakeSize - 1)) {
         g.drawImage(tail, snakeX[i], snakeY[i], this);
       } else {
         g.drawImage(body, snakeX[i], snakeY[i], this);
       }
     }
+
+    g.drawImage(head, snakeX[0], snakeY[0], this);
   }
 
   private void paintGameField(Graphics g) {
@@ -157,14 +166,13 @@ public class GameField extends JPanel implements PropertyChangeListener {
   }
 
   private void paintGameOver(Graphics g) {
-    frogControllers.forEach(FrogController::kill);
+    paintGameField(g);
     String message = "Game Over";
     Font font = new Font("Monospaced", Font.BOLD, 20);
     g.setColor(Color.white);
     g.setFont(font);
     g.drawString(message, (cellSize * fieldCellsX / 2) - 55, cellSize * fieldCellsY / 2);
   }
-
 
   private class MouseListener extends MouseAdapter {
 
@@ -176,29 +184,10 @@ public class GameField extends JPanel implements PropertyChangeListener {
       Direction direction = snakeController.getDirection();
 
       if (clickedButton == MouseEvent.BUTTON1) {
-
-        if (direction == Direction.RIGHT) {
-          snakeController.changeDirection(Direction.UP);
-        } else if (direction == Direction.UP) {
-          snakeController.changeDirection(Direction.LEFT);
-        } else if (direction == Direction.LEFT) {
-          snakeController.changeDirection(Direction.DOWN);
-        } else if (direction == Direction.DOWN) {
-          snakeController.changeDirection(Direction.RIGHT);
-        }
+        snakeController.turnLeft();
       } else if (clickedButton == MouseEvent.BUTTON3) {
-
-        if (direction == Direction.RIGHT) {
-          snakeController.changeDirection(Direction.DOWN);
-        } else if (direction == Direction.DOWN) {
-          snakeController.changeDirection(Direction.LEFT);
-        } else if (direction == Direction.LEFT) {
-          snakeController.changeDirection(Direction.UP);
-        } else if (direction == Direction.UP) {
-          snakeController.changeDirection(Direction.RIGHT);
-        }
+        snakeController.turnRight();
       }
-
     }
   }
 }

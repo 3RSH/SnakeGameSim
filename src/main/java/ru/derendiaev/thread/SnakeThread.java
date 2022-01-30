@@ -19,7 +19,7 @@ public class SnakeThread implements Runnable {
   public void run() {
     while (controller.isLive()) {
       try {
-        sleep(200);
+        sleep(300);
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
