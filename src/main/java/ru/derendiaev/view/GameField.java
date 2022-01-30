@@ -163,6 +163,7 @@ public class GameField extends JPanel implements PropertyChangeListener {
     }
 
     paintSnake(g, snakeX, snakeY);
+    paintPoints(g);
   }
 
   private void paintGameOver(Graphics g) {
@@ -172,6 +173,14 @@ public class GameField extends JPanel implements PropertyChangeListener {
     g.setColor(Color.white);
     g.setFont(font);
     g.drawString(message, (cellSize * fieldCellsX / 2) - 55, cellSize * fieldCellsY / 2);
+  }
+
+  private void paintPoints(Graphics g) {
+    String message = "POINTS " + snakeController.getPoints();
+    Font font = new Font("Monospaced", Font.BOLD, 16);
+    g.setColor(Color.white);
+    g.setFont(font);
+    g.drawString(message, (cellSize * fieldCellsX) - 120, 25);
   }
 
   private class MouseListener extends MouseAdapter {

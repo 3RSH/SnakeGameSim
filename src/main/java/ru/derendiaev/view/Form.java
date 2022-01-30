@@ -7,7 +7,10 @@ import java.beans.PropertyChangeListener;
 import java.util.List;
 import javax.swing.Action;
 import javax.swing.JButton;
+import javax.swing.JEditorPane;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import ru.derendiaev.controller.FrogController;
 import ru.derendiaev.controller.SnakeController;
 

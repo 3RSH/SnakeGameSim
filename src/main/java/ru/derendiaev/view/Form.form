@@ -18,6 +18,7 @@
             <constraints/>
             <properties>
               <hideActionText value="false"/>
+              <horizontalAlignment value="0"/>
               <text value=""/>
               <visible value="true"/>
             </properties>

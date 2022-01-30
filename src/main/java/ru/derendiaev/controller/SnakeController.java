@@ -62,6 +62,10 @@ public class SnakeController {
     snake.setLive(false);
   }
 
+  public int getPoints() {
+    return snake.getPoints();
+  }
+
   public int[] getFieldParams() {
     return new int[]{snake.getCellSize(), snake.getFieldCellsX(), snake.getFieldCellsY()};
   }

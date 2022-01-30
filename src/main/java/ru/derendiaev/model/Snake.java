@@ -11,6 +11,7 @@ public class Snake {
   private final int startSize;
   private boolean isLive = true;
   private int size;
+  private int points;
   private Direction direction;
   private int stepCounter;
 
@@ -61,6 +62,7 @@ public class Snake {
    */
   public void growSnake() {
     size++;
+    points++;
   }
 
   /**
@@ -144,11 +146,16 @@ public class Snake {
     isLive = live;
   }
 
+  public int getPoints() {
+    return points;
+  }
+
   /**
    * Snake initialization method.
    */
   public void init() {
     size = startSize;
+    points = 0;
     isLive = true;
     direction = Direction.RIGHT;
 
