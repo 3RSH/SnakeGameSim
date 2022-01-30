@@ -9,8 +9,10 @@ public class Snake {
   private final int[] snakeX;
   private final int[] snakeY;
   private final int startSize;
+  private final int startSpeed;
+  private int currentSize;
+  private int currentSpeed;
   private boolean isLive = true;
-  private int size;
   private int points;
   private Direction direction;
   private int stepCounter;
@@ -23,11 +25,12 @@ public class Snake {
   /**
    * Snake constructor.
    */
-  public Snake(int cellSize, int fieldCellsX, int fieldCellsY, int size) {
+  public Snake(int cellSize, int fieldCellsX, int fieldCellsY, int startSize, int startSpeed) {
     this.cellSize = cellSize;
     this.fieldCellsX = fieldCellsX;
     this.fieldCellsY = fieldCellsY;
-    this.startSize = size;
+    this.startSize = startSize;
+    this.startSpeed = startSpeed;
 
     int fieldCellsArea = fieldCellsX * fieldCellsY;
     snakeX = new int[fieldCellsArea];
@@ -38,7 +41,7 @@ public class Snake {
    * Move snake.
    */
   public void move() {
-    for (int i = size; i > 0; i--) {
+    for (int i = currentSize; i > 0; i--) {
       snakeX[i] = snakeX[i - 1];
       snakeY[i] = snakeY[i - 1];
     }
@@ -61,8 +64,12 @@ public class Snake {
    * Grow snake when is eating.
    */
   public void growSnake() {
-    size++;
+    currentSize++;
     points++;
+
+    if (points % 10 == 0) {
+      currentSpeed++;
+    }
   }
 
   /**
@@ -106,8 +113,8 @@ public class Snake {
     return isLive;
   }
 
-  public int getSize() {
-    return size;
+  public int getCurrentSize() {
+    return currentSize;
   }
 
   public int[] getSnakeX() {
@@ -138,10 +145,6 @@ public class Snake {
     return cellSize;
   }
 
-  public Direction getDirection() {
-    return direction;
-  }
-
   public void setLive(boolean live) {
     isLive = live;
   }
@@ -150,23 +153,28 @@ public class Snake {
     return points;
   }
 
+  public int getSpeed() {
+    return currentSpeed;
+  }
+
   /**
    * Snake initialization method.
    */
   public void init() {
-    size = startSize;
+    currentSize = startSize;
+    currentSpeed = startSpeed;
     points = 0;
     isLive = true;
     direction = Direction.RIGHT;
 
-    for (int i = 0; i < size; i++) {
-      snakeX[i] = size * cellSize - (i + 1) * cellSize;
+    for (int i = 0; i < currentSize; i++) {
+      snakeX[i] = currentSize * cellSize - (i + 1) * cellSize;
       snakeY[i] = 0;
     }
   }
 
   private void checkCollisions() {
-    for (int i = size; i > 0; i--) {
+    for (int i = currentSize; i > 0; i--) {
       if (snakeX[0] == snakeX[i] && snakeY[0] == snakeY[i]) {
         isLive = false;
         break;

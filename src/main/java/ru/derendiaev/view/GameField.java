@@ -17,7 +17,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import ru.derendiaev.controller.FrogController;
 import ru.derendiaev.controller.SnakeController;
-import ru.derendiaev.model.Snake.Direction;
 import ru.derendiaev.thread.FrogThread;
 import ru.derendiaev.thread.SnakeThread;
 
@@ -177,7 +176,7 @@ public class GameField extends JPanel implements PropertyChangeListener {
 
   private void paintPoints(Graphics g) {
     String message = "POINTS " + snakeController.getPoints();
-    Font font = new Font("Monospaced", Font.BOLD, 16);
+    Font font = new Font("Monospaced", Font.BOLD, cellSize);
     g.setColor(Color.white);
     g.setFont(font);
     g.drawString(message, (cellSize * fieldCellsX) - 120, 25);
@@ -189,8 +188,6 @@ public class GameField extends JPanel implements PropertyChangeListener {
     public void mouseClicked(MouseEvent e) {
       super.mouseClicked(e);
       int clickedButton = e.getButton();
-
-      Direction direction = snakeController.getDirection();
 
       if (clickedButton == MouseEvent.BUTTON1) {
         snakeController.turnLeft();

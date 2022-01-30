@@ -3,13 +3,11 @@ package ru.derendiaev.controller;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import ru.derendiaev.model.Snake;
-import ru.derendiaev.model.Snake.Direction;
 
 /**
  * Created by DDerendiaev on 19-Jan-22.
  */
 public class SnakeController {
-
 
   private final Snake snake;
   private final PropertyChangeSupport support;
@@ -22,10 +20,6 @@ public class SnakeController {
     support = new PropertyChangeSupport(this);
   }
 
-  public Direction getDirection() {
-    return snake.getDirection();
-  }
-
   public void turnRight() {
     snake.turnRight();
   }
@@ -35,7 +29,7 @@ public class SnakeController {
   }
 
   public int getSize() {
-    return snake.getSize();
+    return snake.getCurrentSize();
   }
 
   public int[] getX() {
@@ -64,6 +58,10 @@ public class SnakeController {
 
   public int getPoints() {
     return snake.getPoints();
+  }
+
+  public int getSpeed() {
+    return snake.getSpeed();
   }
 
   public int[] getFieldParams() {
