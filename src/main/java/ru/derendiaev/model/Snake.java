@@ -1,71 +1,87 @@
 package ru.derendiaev.model;
 
+import java.util.ArrayList;
+import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
+
+
 /**
- * Created by DDerendiaev on 17-Jan-22.
+ * Created by DDerendiaev on 01-Feb-22.
  */
 public class Snake {
 
-  //Snake params.
-  private final int[] snakeX;
-  private final int[] snakeY;
+  private static final String NULL_DIRECTION_ERROR = "Direction is NULL";
+
   private final int startSize;
   private final int startSpeed;
-  private int currentSize;
+
+  @Getter
+  private List<Cell> cells;
+
+  @Getter
   private int currentSpeed;
-  private boolean isLive = true;
+
+  @Getter
   private int points;
+
+  @Getter
+  @Setter
+  private boolean isLive;
+
+  @Getter
   private Direction direction;
   private int stepCounter;
-
-  //GameField params.
-  private final int cellSize;
-  private final int fieldCellsX;
-  private final int fieldCellsY;
 
   /**
    * Snake constructor.
    */
-  public Snake(int cellSize, int fieldCellsX, int fieldCellsY, int startSize, int startSpeed) {
-    this.cellSize = cellSize;
-    this.fieldCellsX = fieldCellsX;
-    this.fieldCellsY = fieldCellsY;
+  public Snake(int startSize, int startSpeed) {
     this.startSize = startSize;
     this.startSpeed = startSpeed;
+  }
 
-    int fieldCellsArea = fieldCellsX * fieldCellsY;
-    snakeX = new int[fieldCellsArea];
-    snakeY = new int[fieldCellsArea];
+  /**
+   * Snake initialization.
+   */
+  public void init(List<Cell> fieldCells) {
+    currentSpeed = startSpeed;
+    direction = Direction.RIGHT;
+    points = 0;
+    isLive = true;
+    cells = new ArrayList<>();
+
+    for (int i = startSize; i > 0; i--) {
+      Cell fieldCell = fieldCells.get(i - 1);
+      fieldCell.setOccupied(true);
+      cells.add(fieldCell);
+    }
   }
 
   /**
    * Move snake.
    */
-  public void move() {
-    for (int i = currentSize; i > 0; i--) {
-      snakeX[i] = snakeX[i - 1];
-      snakeY[i] = snakeY[i - 1];
-    }
+  public void move(Cell newCell) {
+    if (isLive) {
+      cells.forEach(cell -> cell.setOccupied(false));
 
-    if (direction == Direction.LEFT) {
-      snakeX[0] -= cellSize;
-    } else if (direction == Direction.RIGHT) {
-      snakeX[0] += cellSize;
-    } else if (direction == Direction.UP) {
-      snakeY[0] -= cellSize;
-    } else if (direction == Direction.DOWN) {
-      snakeY[0] += cellSize;
-    }
+      for (int i = cells.size() - 1; i > 0; i--) {
+        cells.set(i, cells.get(i - 1));
+      }
 
-    stepCounter++;
-    checkCollisions();
+      cells.forEach(cell -> cell.setOccupied(true));
+      stepCounter++;
+    }
   }
 
   /**
-   * Grow snake when is eating.
+   * Grow snake.
    */
-  public void growSnake() {
-    currentSize++;
-    points++;
+  public void grow() {
+    if (isLive) {
+      cells.add(cells.get(cells.size() - 1));
+      points++;
+    }
 
     if (points % 10 == 0) {
       currentSpeed++;
@@ -76,14 +92,25 @@ public class Snake {
    * Snake turn right.
    */
   public void turnRight() {
-    if (direction == Direction.RIGHT) {
-      setDirection(Direction.DOWN);
-    } else if (direction == Direction.DOWN) {
-      setDirection(Direction.LEFT);
-    } else if (direction == Direction.LEFT) {
-      setDirection(Direction.UP);
-    } else if (direction == Direction.UP) {
-      setDirection(Direction.RIGHT);
+    if (stepCounter > 0) {
+      switch (direction) {
+        case RIGHT:
+          direction = Direction.DOWN;
+          break;
+        case DOWN:
+          direction = Direction.LEFT;
+          break;
+        case LEFT:
+          direction = Direction.UP;
+          break;
+        case UP:
+          direction = Direction.RIGHT;
+          break;
+        default:
+          throw new NullPointerException(NULL_DIRECTION_ERROR);
+      }
+
+      stepCounter = 0;
     }
   }
 
@@ -91,132 +118,25 @@ public class Snake {
    * Snake turn right.
    */
   public void turnLeft() {
-    if (direction == Direction.RIGHT) {
-      setDirection(Direction.UP);
-    } else if (direction == Direction.UP) {
-      setDirection(Direction.LEFT);
-    } else if (direction == Direction.LEFT) {
-      setDirection(Direction.DOWN);
-    } else if (direction == Direction.DOWN) {
-      setDirection(Direction.RIGHT);
-    }
-  }
+    if (stepCounter > 0) {
+      switch (direction) {
+        case RIGHT:
+          direction = Direction.UP;
+          break;
+        case UP:
+          direction = Direction.LEFT;
+          break;
+        case LEFT:
+          direction = Direction.DOWN;
+          break;
+        case DOWN:
+          direction = Direction.RIGHT;
+          break;
+        default:
+          throw new NullPointerException(NULL_DIRECTION_ERROR);
+      }
 
-  private void setDirection(Direction direction) {
-    if (canChangeDirection(direction)) {
-      this.direction = direction;
       stepCounter = 0;
     }
-  }
-
-  public boolean isLive() {
-    return isLive;
-  }
-
-  public int getCurrentSize() {
-    return currentSize;
-  }
-
-  public int[] getSnakeX() {
-    return snakeX;
-  }
-
-  public int[] getSnakeY() {
-    return snakeY;
-  }
-
-  public int getHeadX() {
-    return snakeX[0];
-  }
-
-  public int getHeadY() {
-    return snakeY[0];
-  }
-
-  public int getFieldCellsX() {
-    return fieldCellsX;
-  }
-
-  public int getFieldCellsY() {
-    return fieldCellsY;
-  }
-
-  public int getCellSize() {
-    return cellSize;
-  }
-
-  public void setLive(boolean live) {
-    isLive = live;
-  }
-
-  public int getPoints() {
-    return points;
-  }
-
-  public int getSpeed() {
-    return currentSpeed;
-  }
-
-  /**
-   * Snake initialization method.
-   */
-  public void init() {
-    currentSize = startSize;
-    currentSpeed = startSpeed;
-    points = 0;
-    isLive = true;
-    direction = Direction.RIGHT;
-
-    for (int i = 0; i < currentSize; i++) {
-      snakeX[i] = currentSize * cellSize - (i + 1) * cellSize;
-      snakeY[i] = 0;
-    }
-  }
-
-  private void checkCollisions() {
-    for (int i = currentSize; i > 0; i--) {
-      if (snakeX[0] == snakeX[i] && snakeY[0] == snakeY[i]) {
-        isLive = false;
-        break;
-      }
-    }
-
-    if (snakeX[0] > (fieldCellsX * cellSize) - cellSize) {
-      isLive = false;
-    } else if (snakeX[0] < 0) {
-      isLive = false;
-    } else if (snakeY[0] > (fieldCellsY * cellSize) - cellSize) {
-      isLive = false;
-    } else if (snakeY[0] < 0) {
-      isLive = false;
-    }
-  }
-
-  private boolean canChangeDirection(Direction direction) {
-    boolean upCondition =
-        direction == Direction.UP
-            && this.direction != Direction.DOWN
-            && stepCounter > 0;
-    boolean downCondition =
-        direction == Direction.DOWN
-            && this.direction != Direction.UP
-            && stepCounter > 0;
-    boolean rightCondition =
-        direction == Direction.RIGHT
-            && this.direction != Direction.LEFT
-            && stepCounter > 0;
-    boolean leftCondition =
-        direction == Direction.LEFT
-            && this.direction != Direction.RIGHT
-            && stepCounter > 0;
-
-    return upCondition || downCondition || rightCondition || leftCondition;
-  }
-
-  /**
-   * Direction emun.
-   */
-  public enum Direction {
-    RIGHT, DOWN, LEFT, UP
   }
 }

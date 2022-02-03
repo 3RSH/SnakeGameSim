@@ -1,105 +1,110 @@
 package ru.derendiaev.model;
 
+import java.util.List;
 import java.util.Random;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
- * Created by DDerendiaev on 21-Jan-22.
+ * Created by DDerendiaev on 01-Feb-22.
  */
 public class Frog {
 
-  //Frog params.
-  private int frogX;
-  private int frogY;
-  private boolean isLive;
+  private static final String NULL_DIRECTION_ERROR = "Direction is NULL";
 
-  //GameField params.
-  private final int cellSize;
-  private final int fieldCellsX;
-  private final int fieldCellsY;
+  @Getter
+  private final int speed;
+
+  @Getter
+  private Cell cell;
+
+  @Getter
+  @Setter
+  private boolean isLive;
+  private Direction direction;
 
   /**
    * Frog constructor.
    */
-  public Frog(int cellSize, int fieldCellsX, int fieldCellsY, Snake snake) {
-    this.cellSize = cellSize;
-    this.fieldCellsX = fieldCellsX;
-    this.fieldCellsY = fieldCellsY;
-    init(snake.getSnakeX(), snake.getSnakeY(), snake.getCurrentSize());
+  public Frog(int speed) {
+    this.speed = speed;
+  }
+
+  /**
+   * Frog initialization.
+   */
+  public void init(List<Cell> fieldCells) {
+    respawn(fieldCells);
+    isLive = true;
   }
 
   /**
    * Respawn frog.
    */
-  public void respawn(int[] snakeX, int[] snakeY, int snakeSize) {
-    int planX = new Random().nextInt(fieldCellsX) * cellSize;
-    int planY = new Random().nextInt(fieldCellsY) * cellSize;
+  public void respawn(List<Cell> fieldCells) {
+    int cellIndex = new Random().nextInt(fieldCells.size());
+    cell = fieldCells.get(cellIndex);
 
-    while (!isCorrectCoords(planX, planY, snakeX, snakeY, snakeSize)) {
-      planX = new Random().nextInt(fieldCellsX) * cellSize;
-      planY = new Random().nextInt(fieldCellsY) * cellSize;
+    while (cell.isOccupied()) {
+      cellIndex = new Random().nextInt(fieldCells.size());
+      cell = fieldCells.get(cellIndex);
     }
 
-    frogX = planX;
-    frogY = planY;
+    cell.setOccupied(true);
   }
 
   /**
    * Move frog.
    */
-  public void move(int[] snakeX, int[] snakeY, int snakeSize) {
-    int direction = new Random().nextInt(4);
-
-    if (direction == 0
-        && frogX != (fieldCellsX - 1) * cellSize
-        && isCorrectCoords(frogX + cellSize, frogY, snakeX, snakeY, snakeSize)) {
-
-      frogX += cellSize;
-    } else if (direction == 1
-        && frogY != (fieldCellsY - 1) * cellSize
-        && isCorrectCoords(frogX, frogY + cellSize, snakeX, snakeY, snakeSize)) {
-
-      frogY += cellSize;
-    } else if (direction == 2
-        && frogX != 0
-        && isCorrectCoords(frogX - cellSize, frogY, snakeX, snakeY, snakeSize)) {
-
-      frogX -= cellSize;
-    } else if (direction == 3
-        && frogY != 0
-        && isCorrectCoords(frogX, frogY - cellSize, snakeX, snakeY, snakeSize)) {
-      frogY -= cellSize;
+  public void move(Cell newCell) {
+    if (isLive) {
+      cell.setOccupied(false);
+      cell = newCell;
+      cell.setOccupied(true);
     }
   }
 
-  public void init(int[] snakeX, int[] snakeY, int snakeSize) {
-    isLive = true;
-    respawn(snakeX, snakeY, snakeSize);
-  }
-
-  public boolean isLive() {
-    return isLive;
-  }
-
-  public void setLive(boolean live) {
-    isLive = live;
-  }
-
-  public int getFrogX() {
-    return frogX;
-  }
-
-  public int getFrogY() {
-    return frogY;
-  }
-
-  private boolean isCorrectCoords(
-      int planX, int planY, int[] snakeX, int[] snakeY, int snakeSize) {
-
-    for (int i = 0; i < snakeSize; i++) {
-      if (planX == snakeX[i] && planY == snakeY[i]) {
-        return false;
-      }
+  /**
+   * Frog turn right.
+   */
+  public void turnRight() {
+    switch (direction) {
+      case RIGHT:
+        direction = Direction.DOWN;
+        break;
+      case DOWN:
+        direction = Direction.LEFT;
+        break;
+      case LEFT:
+        direction = Direction.UP;
+        break;
+      case UP:
+        direction = Direction.RIGHT;
+        break;
+      default:
+        throw new NullPointerException(NULL_DIRECTION_ERROR);
     }
-    return true;
+  }
+
+  /**
+   * Frog turn right.
+   */
+  public void turnLeft() {
+    switch (direction) {
+      case RIGHT:
+        direction = Direction.UP;
+        break;
+      case UP:
+        direction = Direction.LEFT;
+        break;
+      case LEFT:
+        direction = Direction.DOWN;
+        break;
+      case DOWN:
+        direction = Direction.RIGHT;
+        break;
+      default:
+        throw new NullPointerException(NULL_DIRECTION_ERROR);
+    }
   }
 }
