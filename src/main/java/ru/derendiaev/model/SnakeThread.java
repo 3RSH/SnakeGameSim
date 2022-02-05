@@ -1,93 +1,49 @@
 package ru.derendiaev.model;
 
-import static java.lang.Thread.sleep;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Created by DDerendiaev on 03-Feb-22.
+ * Created by DDerendiaev on 05-Feb-22.
  */
-public class SnakeThread implements Runnable {
+public class SnakeThread extends EntityThread {
 
-  private final Snake snake;
-  private final Field field;
-
-  public SnakeThread(Snake snake, Field field) {
-    this.snake = snake;
-    this.field = field;
+  /**
+   * SnakeThread constructor.
+   */
+  public SnakeThread(Entity entity, Field field) {
+    super(entity, field);
   }
 
   @Override
-  public void run() {
-    while (snake.isLive()) {
-      Cell newCell;
-      Direction direction = snake.getDirection();
-      if (direction == Direction.RIGHT) {
+  void move(Cell nextCell) {
+    List<Cell> oldCells = entity.getCells();
+    List<Cell> newCells = new ArrayList<>();
 
-        newCell = field.getCells().stream()
-            .filter(cell -> cell.getCellX() == snake.getCells().get(0).getCellX() + 1)
-            .findFirst()
-            .orElse(null);
+    if (nextCell.getType() == CellType.FREE) {
+      nextCell.setType(CellType.SNAKE);
+      newCells.add(nextCell);
 
-        if (moveSnake(newCell)) {
-          break;
-        }
-      } else if (direction == Direction.DOWN) {
-
-        newCell = field.getCells().stream()
-            .filter(cell -> cell.getCellY() == snake.getCells().get(0).getCellY() + 1)
-            .findFirst()
-            .orElse(null);
-
-        if (moveSnake(newCell)) {
-          break;
-        }
-      } else if (direction == Direction.LEFT) {
-
-        newCell = field.getCells().stream()
-            .filter(cell -> cell.getCellX() == snake.getCells().get(0).getCellX() - 1)
-            .findFirst()
-            .orElse(null);
-
-        if (moveSnake(newCell)) {
-          break;
-        }
-      } else if (direction == Direction.UP) {
-
-        newCell = field.getCells().stream()
-            .filter(cell -> cell.getCellY() == snake.getCells().get(0).getCellY() - 1)
-            .findFirst()
-            .orElse(null);
-
-        if (moveSnake(newCell)) {
-          break;
+      for (int i = 0; i < oldCells.size(); i++) {
+        if (i != oldCells.size() - 1) {
+          newCells.add(oldCells.get(i));
+        } else {
+          oldCells.get(i).setType(CellType.FREE);
         }
       }
-
-      try {
-        sleep(1000 / snake.getCurrentSpeed());
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
+    } else if (nextCell.getType() == CellType.FROG) {
+      int points = entity.getPoints();
+      entity.setPoints(++points);
+      nextCell.setType(CellType.SNAKE);
+      newCells.add(nextCell);
+      newCells.addAll(oldCells);
     }
+
+    entity.setCells(newCells);
   }
 
-  private boolean moveSnake(Cell cell) {
-    if (cell == null) {
-      snake.setLive(false);
-      field.setInGame(false);
-      return false;
-    }
-
-    if (cell.isOccupied()) {
-      if (snake.getCells().contains(cell)) {
-        snake.setLive(false);
-        field.setInGame(false);
-        return false;
-      }
-
-      field.respawnFrog(cell);
-    }
-
-    snake.move(cell);
-    return true;
+  @Override
+  boolean canEntityMove(Cell cell) {
+    return cell != null && cell.getType() != CellType.SNAKE;
   }
 }

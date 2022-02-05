@@ -16,10 +16,14 @@ public class Cell {
 
   @Getter
   @Setter
-  private boolean isOccupied;
+  private CellType type;
 
+  /**
+   * Cell constructor.
+   */
   public Cell(int cellX, int cellY) {
     this.cellX = cellX;
     this.cellY = cellY;
+    type = CellType.FREE;
   }
 }
