@@ -16,6 +16,20 @@ public class SnakeThread extends EntityThread {
   }
 
   @Override
+  public void run() {
+    while (entity.isLive()) {
+      super.run();
+      Cell nextCell = getNextCell();
+
+      if (canEntityMove(nextCell)) {
+        move(nextCell);
+      } else {
+        entity.kill();
+      }
+    }
+  }
+
+  @Override
   void move(Cell nextCell) {
     List<Cell> oldCells = entity.getCells();
     List<Cell> newCells = new ArrayList<>();

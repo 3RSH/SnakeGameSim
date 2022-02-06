@@ -20,20 +20,10 @@ public abstract class EntityThread implements Runnable {
 
   @Override
   public void run() {
-    while (entity.isLive()) {
-      try {
-        sleep(1000 / entity.getSpeed());
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
-
-      Cell nextCell = getNextCell();
-
-      if (canEntityMove(nextCell)) {
-        move(nextCell);
-      } else if (entity.getCells().get(0).getType() == CellType.SNAKE) {
-        entity.kill();
-      }
+    try {
+      sleep(1000 / entity.getSpeed());
+    } catch (InterruptedException e) {
+      e.printStackTrace();
     }
   }
 
@@ -41,7 +31,7 @@ public abstract class EntityThread implements Runnable {
 
   abstract boolean canEntityMove(Cell cell);
 
-  private Cell getNextCell() {
+  Cell getNextCell() {
     Cell head = entity.getCells().get(0);
 
     int headX = head.getCellX();
@@ -72,6 +62,4 @@ public abstract class EntityThread implements Runnable {
         .filter(cell -> cell.getCellX() == finalHeadX && cell.getCellY() == finalHeadY)
         .findFirst().orElse(null);
   }
-
-
 }
