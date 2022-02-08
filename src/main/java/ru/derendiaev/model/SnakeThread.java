@@ -1,63 +1,120 @@
 package ru.derendiaev.model;
 
-import java.util.ArrayList;
-import java.util.List;
+import static java.lang.Thread.sleep;
+
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 
 /**
  * Created by DDerendiaev on 05-Feb-22.
  */
-public class SnakeThread extends EntityThread {
+public class SnakeThread extends MovableThread {
+
+  private final PropertyChangeSupport observer = new PropertyChangeSupport(this);
 
   /**
    * SnakeThread constructor.
    */
-  public SnakeThread(Entity entity, Field field) {
-    super(entity, field);
+  public SnakeThread(MovableObject object, Field field, PropertyChangeListener listener) {
+    super(object, field);
+    observer.addPropertyChangeListener(listener);
   }
 
   @Override
   public void run() {
-    while (entity.isLive()) {
-      super.run();
-      Cell nextCell = getNextCell();
+    while (isLive) {
+      try {
+        sleep(1000 / object.getSpeed());
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
 
-      if (canEntityMove(nextCell)) {
-        move(nextCell);
+      nextCell = getNextCell();
+
+      if (canObjectMove()) {
+        move();
       } else {
-        entity.kill();
+        isLive = false;
       }
     }
   }
 
   @Override
-  void move(Cell nextCell) {
-    List<Cell> oldCells = entity.getCells();
-    List<Cell> newCells = new ArrayList<>();
+  void move() {
+    object.getCells().forEach(cell -> {
+      field.getCoords()[cell.getCellX()][cell.getCellY()] = CellType.FREE;
+      Cell freeCell = new Cell(cell.getCellX(), cell.getCellY());
+      observer.firePropertyChange("changeCell", cell, freeCell);
 
-    if (nextCell.getType() == CellType.FREE) {
-      nextCell.setType(CellType.SNAKE);
-      newCells.add(nextCell);
-
-      for (int i = 0; i < oldCells.size(); i++) {
-        if (i != oldCells.size() - 1) {
-          newCells.add(oldCells.get(i));
-        } else {
-          oldCells.get(i).setType(CellType.FREE);
-        }
+      if (nextCell.getType() == CellType.FROG && cell.getType() == CellType.TAIL) {
+        Cell newCell = new Cell(cell.getCellX(), cell.getCellY());
+        newCell.setType(cell.getType());
+        cell.setType(CellType.BODY);
+        object.getCells().add(newCell);
       }
-    } else if (nextCell.getType() == CellType.FROG) {
-      int points = entity.getPoints();
-      entity.setPoints(++points);
-      nextCell.setType(CellType.SNAKE);
-      newCells.add(nextCell);
-      newCells.addAll(oldCells);
-    }
 
-    entity.setCells(newCells);
+      Direction direction = object.getDirection();
+
+      if (direction == Direction.RIGHT) {
+        cell.setCellX(cell.getCellX() + 1);
+      } else if (direction == Direction.LEFT) {
+        cell.setCellX(cell.getCellX() - 1);
+      } else if (direction == Direction.DOWN) {
+        cell.setCellY(cell.getCellY() + 1);
+      } else if (direction == Direction.UP) {
+        cell.setCellY(cell.getCellY() - 1);
+      }
+    });
+
+    object.getCells().forEach(cell -> {
+      Cell newCell = new Cell(cell.getCellX(), cell.getCellY());
+      field.getCoords()[cell.getCellX()][cell.getCellY()] = cell.getType();
+      observer.firePropertyChange("changeCell", newCell, cell);
+    });
   }
 
   @Override
-  boolean canEntityMove(Cell cell) {
-    return cell != null && cell.getType() != CellType.SNAKE;
+  boolean canObjectMove() {
+    return nextCell != null
+        && nextCell.getType() != CellType.BODY
+        && nextCell.getType() != CellType.TAIL;
+  }
+
+  @Override
+  Cell getNextCell() {
+    Cell head = object.getCells().stream()
+        .filter(cell -> cell.getType() == CellType.HEAD)
+        .findFirst()
+        .orElse(null);
+
+    if (head != null) {
+      int headX = head.getCellX();
+      int headY = head.getCellY();
+
+      Direction direction = object.getDirection();
+
+      if (direction == Direction.RIGHT) {
+        headX++;
+      } else if (direction == Direction.LEFT) {
+        headX--;
+      } else if (direction == Direction.DOWN) {
+        headY++;
+      } else if (direction == Direction.UP) {
+        headY--;
+      }
+
+      if (headX > field.getCoords().length - 1 || headX < 0
+          || headY > field.getCoords()[headX].length - 1 || headY < 0) {
+        return null;
+      }
+
+      CellType nextCellType = field.getCoords()[headX][headY];
+      Cell nextCell = new Cell(headX, headY);
+      nextCell.setType(nextCellType);
+
+      return nextCell;
+    }
+
+    return null;
   }
 }

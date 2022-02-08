@@ -9,10 +9,12 @@ import lombok.Setter;
 public class Cell {
 
   @Getter
-  private final int cellX;
+  @Setter
+  private int cellX;
 
   @Getter
-  private final int cellY;
+  @Setter
+  private int cellY;
 
   @Getter
   @Setter
