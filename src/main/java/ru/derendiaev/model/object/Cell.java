@@ -1,4 +1,4 @@
-package ru.derendiaev.model;
+package ru.derendiaev.model.object;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -16,16 +16,11 @@ public class Cell {
   @Setter
   private int cellY;
 
-  @Getter
-  @Setter
-  private CellType type;
-
   /**
    * Cell constructor.
    */
   public Cell(int cellX, int cellY) {
     this.cellX = cellX;
     this.cellY = cellY;
-    type = CellType.FREE;
   }
 }

@@ -1,4 +1,4 @@
-package ru.derendiaev.model;
+package ru.derendiaev.model.object;
 
 /**
  * Created by DDerendiaev on 02-Feb-22.

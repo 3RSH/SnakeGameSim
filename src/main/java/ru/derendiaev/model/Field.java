@@ -1,9 +1,6 @@
 package ru.derendiaev.model;
 
-import java.util.ArrayList;
-import java.util.List;
 import lombok.Getter;
-import lombok.Setter;
 
 /**
  * Created by DDerendiaev on 01-Feb-22.
@@ -11,8 +8,7 @@ import lombok.Setter;
 public class Field {
 
   @Getter
-  @Setter
-  private CellType[][] coords;
+  private final CellType[][] coords;
 
   /**
    * Field constructor.

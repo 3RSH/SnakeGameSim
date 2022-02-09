@@ -1,6 +1,5 @@
-package ru.derendiaev.model;
+package ru.derendiaev.model.object;
 
-import java.beans.PropertyChangeSupport;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
