@@ -1,5 +1,7 @@
 package ru.derendiaev.model.thread;
 
+import lombok.Getter;
+import lombok.Setter;
 import ru.derendiaev.model.Field;
 import ru.derendiaev.model.object.Cell;
 import ru.derendiaev.model.object.Direction;
@@ -14,6 +16,10 @@ public abstract class MovableThread implements Runnable {
   protected final Field field;
 
   protected Cell nextCell;
+
+  @Getter
+  @Setter
+  protected boolean isLive;
 
   /**
    * Thread constructor.

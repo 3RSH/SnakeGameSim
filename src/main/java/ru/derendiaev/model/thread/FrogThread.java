@@ -28,15 +28,9 @@ public class FrogThread extends MovableThread {
 
   @Override
   public void run() {
-    while (true) {
-      try {
-        sleep(1000 / object.getSpeed());
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
-
+    while (isLive) {
       if (isEaten()) {
-        observer.firePropertyChange("dieThread", true, false);
+        observer.firePropertyChange("dieThread", isLive, false);
         break;
       }
 
@@ -45,6 +39,12 @@ public class FrogThread extends MovableThread {
 
       if (canObjectMove()) {
         move();
+      }
+
+      try {
+        sleep(1000 / object.getSpeed());
+      } catch (InterruptedException e) {
+        e.printStackTrace();
       }
     }
   }
