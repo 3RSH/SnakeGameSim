@@ -2,8 +2,8 @@ package ru.derendiaev.controller;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
 import java.util.List;
+import lombok.Setter;
 import ru.derendiaev.model.object.Cell;
 import ru.derendiaev.model.object.Direction;
 import ru.derendiaev.model.object.MovableObject;
@@ -15,8 +15,13 @@ import ru.derendiaev.view.GameField;
  */
 public class SnakeController implements PropertyChangeListener {
 
-  GameField gameField;
-  SnakeThread snakeThread;
+  private int stepCounter;
+
+  @Setter
+  private GameField gameField;
+
+  @Setter
+  private SnakeThread snakeThread;
 
   @Override
   public void propertyChange(PropertyChangeEvent evt) {
@@ -24,38 +29,40 @@ public class SnakeController implements PropertyChangeListener {
 
     //from model to view event
     if (eventName.equals("changeCells")) {
-      List<Cell> cells = new ArrayList<>();
-
-      cells.addAll((List<Cell>) evt.getNewValue());
-      cells.addAll((List<Cell>) evt.getOldValue());
-
-      gameField.repaintCells(cells);
+      stepCounter++;
+      gameField.setSnakeCoords((List<Cell>) evt.getNewValue());
+      gameField.repaint();
 
       //from model to view event
     } else if (eventName.equals("dieThread")) {
-      gameField.stopGame;
+      gameField.getObserver().removePropertyChangeListener(this);
+      gameField.stopGame();
 
       //from view to model event
     } else if (eventName.equals("changeDirection")) {
-      int newDirection = (int) evt.getNewValue();
+      boolean changeDirection = (boolean) evt.getNewValue();
 
-      if (snakeThread.getStepCounter() > 0) {
+      if (stepCounter > 0) {
         MovableObject snake = snakeThread.getSnake();
+        int newDirectionIndex = changeDirection
+            ? snake.getDirection().ordinal() + 1
+            : snake.getDirection().ordinal() - 1;
 
-        if (newDirection == 0 && snake.getDirection() != Direction.LEFT) {
-          snake.setDirection(Direction.RIGHT);
-        } else if (newDirection == 1 && snake.getDirection() != Direction.UP) {
-          snake.setDirection(Direction.DOWN);
-        } else if (newDirection == 2 && snake.getDirection() != Direction.RIGHT) {
-          snake.setDirection(Direction.LEFT);
-        } else if (newDirection == 3 && snake.getDirection() != Direction.DOWN) {
-          snake.setDirection(Direction.UP);
+        if (newDirectionIndex > Direction.values().length - 1) {
+          newDirectionIndex = 0;
+        } else if (newDirectionIndex < 0) {
+          newDirectionIndex = Direction.values().length - 1;
         }
+
+        snake.setDirection(Direction.values()[newDirectionIndex]);
+        stepCounter = 0;
       }
 
       //from view to model event
     } else if (eventName.equals("stopGame") && snakeThread.isLive()) {
-      snakeThread.setLive(false);
+      if (snakeThread.isLive()) {
+        snakeThread.setLive(false);
+      }
     }
   }
 }

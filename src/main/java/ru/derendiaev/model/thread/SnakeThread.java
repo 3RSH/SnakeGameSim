@@ -6,8 +6,6 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
 import ru.derendiaev.model.CellType;
 import ru.derendiaev.model.Field;
 import ru.derendiaev.model.object.Cell;
@@ -19,11 +17,6 @@ import ru.derendiaev.model.object.MovableObject;
 public class SnakeThread extends MovableThread {
 
   private final PropertyChangeSupport observer = new PropertyChangeSupport(this);
-
-  @Getter
-  @Setter
-  private int stepCounter;
-
 
   /**
    * SnakeThread constructor.
@@ -107,8 +100,6 @@ public class SnakeThread extends MovableThread {
     } else {
       oldCells.clear();
     }
-
-    stepCounter++;
 
     //Fire cells change.
     observer.firePropertyChange("changeCells", oldCells, cells);

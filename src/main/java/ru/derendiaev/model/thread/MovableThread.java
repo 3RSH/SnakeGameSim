@@ -27,6 +27,7 @@ public abstract class MovableThread implements Runnable {
   public MovableThread(MovableObject object, Field field) {
     this.object = object;
     this.field = field;
+    isLive = true;
   }
 
   @Override

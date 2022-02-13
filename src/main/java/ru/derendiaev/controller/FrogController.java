@@ -2,8 +2,7 @@ package ru.derendiaev.controller;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
-import java.util.List;
+import lombok.Setter;
 import ru.derendiaev.model.object.Cell;
 import ru.derendiaev.model.thread.FrogThread;
 import ru.derendiaev.view.GameField;
@@ -13,8 +12,11 @@ import ru.derendiaev.view.GameField;
  */
 public class FrogController implements PropertyChangeListener {
 
-  GameField gameField;
-  FrogThread frogThread;
+  @Setter
+  private int frogIndex;
+
+  public GameField gameField;
+  public FrogThread frogThread;
 
   @Override
   public void propertyChange(PropertyChangeEvent evt) {
@@ -22,20 +24,21 @@ public class FrogController implements PropertyChangeListener {
 
     //from model to view event
     if (eventName.equals("changeCell")) {
-      List<Cell> cells = new ArrayList<>();
+      gameField.getFrogsCoords().set(frogIndex, (Cell) evt.getNewValue());
 
-      cells.add((Cell) evt.getNewValue());
-      cells.add((Cell) evt.getOldValue());
-
-      gameField.repaintCells(cells);
-      
       //from model to view event
     } else if (eventName.equals("dieThread")) {
-      gameField.respawnFrog;
+      gameField.setFrogCount(gameField.getFrogCount() - 1);
+      gameField.setSnakeSize(gameField.getSnakeSize() + 1);
+      gameField.setPoints(gameField.getPoints() + 1);
+      gameField.getObserver().removePropertyChangeListener(this);
+      gameField.respawnFrog(frogIndex);
 
       //from view to model event
     } else if (eventName.equals("stopGame") && frogThread.isLive()) {
-      frogThread.setLive(false);
+      if (frogThread.isLive()) {
+        frogThread.setLive(false);
+      }
     }
   }
 }
