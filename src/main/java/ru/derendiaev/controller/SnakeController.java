@@ -1,86 +1,72 @@
 package ru.derendiaev.controller;
 
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import ru.derendiaev.model.Snake;
+import java.util.List;
+import lombok.Setter;
+import ru.derendiaev.model.object.Cell;
+import ru.derendiaev.model.object.Direction;
+import ru.derendiaev.model.object.MovableObject;
+import ru.derendiaev.model.thread.SnakeThread;
+import ru.derendiaev.view.GameField;
 
 /**
- * Created by DDerendiaev on 19-Jan-22.
+ * Created by DDerendiaev on 08-Feb-22.
  */
-public class SnakeController {
+public class SnakeController implements PropertyChangeListener {
 
-  private final Snake snake;
-  private final PropertyChangeSupport support;
+  private int stepCounter;
 
-  /**
-   * Snake controller constructor.
-   */
-  public SnakeController(Snake snake) {
-    this.snake = snake;
-    support = new PropertyChangeSupport(this);
-  }
+  @Setter
+  private GameField gameField;
 
-  public void turnRight() {
-    snake.turnRight();
-  }
+  @Setter
+  private SnakeThread snakeThread;
 
-  public void turnLeft() {
-    snake.turnLeft();
-  }
+  @Override
+  public void propertyChange(PropertyChangeEvent evt) {
+    String eventName = evt.getPropertyName();
 
-  public int getSize() {
-    return snake.getCurrentSize();
-  }
+    //from model to view event
+    if (eventName.equals("changeCells")) {
+      stepCounter++;
+      gameField.setSnakeCoords((List<Cell>) evt.getNewValue());
+      gameField.repaint();
 
-  public int[] getX() {
-    return snake.getSnakeX();
-  }
+      //from model to view event
+    } else if (eventName.equals("dieThread")) {
+      gameField.getObserver().removePropertyChangeListener(this);
+      gameField.stopGame();
 
-  public int[] getY() {
-    return snake.getSnakeY();
-  }
+      //from view to model event
+    } else if (eventName.equals("changeDirection")) {
+      boolean changeDirection = (boolean) evt.getNewValue();
 
-  public boolean isLive() {
-    return snake.isLive();
-  }
+      if (stepCounter > 0) {
+        MovableObject snake = snakeThread.getSnake();
+        int newDirectionIndex = changeDirection
+            ? snake.getDirection().ordinal() + 1
+            : snake.getDirection().ordinal() - 1;
 
-  public void grow() {
-    snake.growSnake();
-  }
+        if (newDirectionIndex > Direction.values().length - 1) {
+          newDirectionIndex = 0;
+        } else if (newDirectionIndex < 0) {
+          newDirectionIndex = Direction.values().length - 1;
+        }
 
-  public void initSnake() {
-    snake.init();
-  }
+        snake.setDirection(Direction.values()[newDirectionIndex]);
+        stepCounter = 0;
+      }
 
-  public void killSnake() {
-    snake.setLive(false);
-  }
+      //from view to model event
+    } else if (eventName.equals("stopGame") && snakeThread.isLive()) {
+      if (snakeThread.isLive()) {
+        snakeThread.setLive(false);
+      }
 
-  public int getPoints() {
-    return snake.getPoints();
-  }
-
-  public int getSpeed() {
-    return snake.getSpeed();
-  }
-
-  public int[] getFieldParams() {
-    return new int[]{snake.getCellSize(), snake.getFieldCellsX(), snake.getFieldCellsY()};
-  }
-
-  /**
-   * Move snake method.
-   */
-  public void moveSnake() {
-    int oldHeadX = snake.getHeadX();
-    int oldHeadY = snake.getHeadY();
-    snake.move();
-    support.firePropertyChange("moveX", oldHeadX, snake.getHeadX());
-    support.firePropertyChange("moveY", oldHeadY, snake.getHeadY());
-    support.firePropertyChange("isLive", true, snake.isLive());
-  }
-
-  public void addPropertyChangeListener(PropertyChangeListener listener) {
-    support.addPropertyChangeListener(listener);
+      //from view to model event
+    } else if (eventName.equals("nextTenPoints") && snakeThread.isLive()) {
+      snakeThread.getSnake().setSpeed(snakeThread.getSnake().getSpeed() + (int) evt.getNewValue());
+    }
   }
 }

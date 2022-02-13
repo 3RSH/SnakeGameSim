@@ -1,64 +1,44 @@
 package ru.derendiaev.controller;
 
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import ru.derendiaev.model.Frog;
-import ru.derendiaev.model.Snake;
+import lombok.Setter;
+import ru.derendiaev.model.object.Cell;
+import ru.derendiaev.model.thread.FrogThread;
+import ru.derendiaev.view.GameField;
 
 /**
- * Created by DDerendiaev on 21-Jan-22.
+ * Created by DDerendiaev on 10-Feb-22.
  */
-public class FrogController {
+public class FrogController implements PropertyChangeListener {
 
-  private final Snake snake;
-  private final Frog frog;
-  private final PropertyChangeSupport support;
+  @Setter
+  private int frogIndex;
 
-  /**
-   * Frog controller constructor.
-   */
-  public FrogController(Frog frog, Snake snake) {
-    this.frog = frog;
-    this.snake = snake;
-    support = new PropertyChangeSupport(this);
-  }
+  public GameField gameField;
+  public FrogThread frogThread;
 
-  public int getX() {
-    return frog.getFrogX();
-  }
+  @Override
+  public void propertyChange(PropertyChangeEvent evt) {
+    String eventName = evt.getPropertyName();
 
-  public int getY() {
-    return frog.getFrogY();
-  }
+    //from model to view event
+    if (eventName.equals("changeCell")) {
+      gameField.getFrogsCoords().set(frogIndex, (Cell) evt.getNewValue());
 
-  /**
-   * Move frog method.
-   */
-  public void moveFrog() {
-    int oldX = frog.getFrogX();
-    int oldY = frog.getFrogY();
-    frog.move(snake.getSnakeX(), snake.getSnakeY(), snake.getCurrentSize());
-    support.firePropertyChange("moveX", oldX, frog.getFrogX());
-    support.firePropertyChange("moveY", oldY, frog.getFrogY());
-  }
+      //from model to view event
+    } else if (eventName.equals("dieThread")) {
+      gameField.setFrogCount(gameField.getFrogCount() - 1);
+      gameField.setSnakeSize(gameField.getSnakeSize() + 1);
+      gameField.incrementPoints();
+      gameField.getObserver().removePropertyChangeListener(this);
+      gameField.respawnFrog(frogIndex);
 
-  public boolean isLive() {
-    return frog.isLive();
-  }
-
-  public void respawnFrog() {
-    frog.respawn(snake.getSnakeX(), snake.getSnakeY(), snake.getCurrentSize());
-  }
-
-  public void kill() {
-    frog.setLive(false);
-  }
-
-  public void initFrog() {
-    frog.init(snake.getSnakeX(), snake.getSnakeY(), snake.getCurrentSize());
-  }
-
-  public void addPropertyChangeListener(PropertyChangeListener listener) {
-    support.addPropertyChangeListener(listener);
+      //from view to model event
+    } else if (eventName.equals("stopGame") && frogThread.isLive()) {
+      if (frogThread.isLive()) {
+        frogThread.setLive(false);
+      }
+    }
   }
 }
