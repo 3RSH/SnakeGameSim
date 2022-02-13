@@ -6,7 +6,7 @@
 
   <groupId>ru.derendiaev</groupId>
   <artifactId>SnakeGameSim</artifactId>
-  <version>0.02-SNAPSHOT</version>
+  <version>0.03-SNAPSHOT</version>
 
   <properties>
     <maven.compiler.source>8</maven.compiler.source>

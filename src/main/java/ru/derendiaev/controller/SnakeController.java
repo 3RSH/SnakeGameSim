@@ -63,6 +63,10 @@ public class SnakeController implements PropertyChangeListener {
       if (snakeThread.isLive()) {
         snakeThread.setLive(false);
       }
+
+      //from view to model event
+    } else if (eventName.equals("nextTenPoints") && snakeThread.isLive()) {
+      snakeThread.getSnake().setSpeed(snakeThread.getSnake().getSpeed() + (int) evt.getNewValue());
     }
   }
 }

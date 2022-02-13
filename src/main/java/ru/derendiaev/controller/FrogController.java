@@ -30,7 +30,7 @@ public class FrogController implements PropertyChangeListener {
     } else if (eventName.equals("dieThread")) {
       gameField.setFrogCount(gameField.getFrogCount() - 1);
       gameField.setSnakeSize(gameField.getSnakeSize() + 1);
-      gameField.setPoints(gameField.getPoints() + 1);
+      gameField.incrementPoints();
       gameField.getObserver().removePropertyChangeListener(this);
       gameField.respawnFrog(frogIndex);
 

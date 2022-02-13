@@ -87,10 +87,6 @@ public class GameField extends JPanel {
   public void paintComponent(Graphics g) {
     super.paintComponent(g);
 
-    if (!isFocusOwner()) {
-      requestFocus();
-    }
-
     if (inGame) {
       paintGameField(g);
 
@@ -149,6 +145,17 @@ public class GameField extends JPanel {
       getNewFrogThread(frogCells, frogIndex).start();
     } else {
       frogsCoords.set(frogIndex, null);
+    }
+  }
+
+  /**
+   * Increment points.
+   */
+  public void incrementPoints() {
+    points++;
+
+    if (points % 10 == 0) {
+      observer.firePropertyChange("nextTenPoints", 0, 1);
     }
   }
 
