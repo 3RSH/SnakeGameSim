@@ -1,9 +1,14 @@
 package ru.derendiaev.model.thread;
 
+import static java.lang.Thread.sleep;
+
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import lombok.Getter;
 import lombok.Setter;
+import ru.derendiaev.model.CollisionExeption;
 import ru.derendiaev.model.Field;
-import ru.derendiaev.model.object.Cell;
+import ru.derendiaev.model.object.Coords;
 import ru.derendiaev.model.object.Direction;
 import ru.derendiaev.model.object.MovableObject;
 
@@ -12,10 +17,9 @@ import ru.derendiaev.model.object.MovableObject;
  */
 public abstract class MovableThread implements Runnable {
 
-  protected final MovableObject object;
+  protected final PropertyChangeSupport observer = new PropertyChangeSupport(this);
+  protected final MovableObject fieldObject;
   protected final Field field;
-
-  protected Cell nextCell;
 
   @Getter
   @Setter
@@ -24,45 +28,48 @@ public abstract class MovableThread implements Runnable {
   /**
    * Thread constructor.
    */
-  public MovableThread(MovableObject object, Field field) {
-    this.object = object;
+  public MovableThread(MovableObject fieldObject, Field field, PropertyChangeListener listener) {
+    observer.addPropertyChangeListener(listener);
+    this.fieldObject = fieldObject;
     this.field = field;
     isLive = true;
   }
 
   @Override
-  public abstract void run();
+  public void run() {
+    while (isLive) {
+      move(getNextHeadCoords());
 
-  abstract void move();
-
-  abstract boolean canObjectMove();
-
-  protected Cell getNextCell() {
-    Cell cell = object.getCells().get(0);
-
-    //Cell coords get.
-    int cellX = cell.getCellX();
-    int cellY = cell.getCellY();
-
-    //Coords change.
-    Direction direction = object.getDirection();
-
-    if (direction == Direction.RIGHT) {
-      cellX++;
-    } else if (direction == Direction.LEFT) {
-      cellX--;
-    } else if (direction == Direction.DOWN) {
-      cellY++;
-    } else if (direction == Direction.UP) {
-      cellY--;
+      try {
+        sleep(1000 / fieldObject.getSpeed());
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
     }
-
-    //New cell create and return.
-    return new Cell(cellX, cellY);
   }
 
-  protected boolean isCollision(int cellX, int cellY) {
-    return cellX > field.getCoords().length - 1 || cellX < 0
-        || cellY > field.getCoords()[cellX].length - 1 || cellY < 0;
+  abstract void move(Coords nextHeadCoords);
+
+  abstract void checkObjectMove(Coords nextHeadCoords) throws CollisionExeption;
+
+  protected Coords getNextHeadCoords() {
+    Coords headCoords = fieldObject.getAllCoords().get(0);
+
+    int newHeadX = headCoords.getCoordX();
+    int newHeadY = headCoords.getCoordY();
+
+    Direction direction = fieldObject.getDirection();
+
+    if (direction == Direction.RIGHT) {
+      newHeadX++;
+    } else if (direction == Direction.LEFT) {
+      newHeadX++;
+    } else if (direction == Direction.DOWN) {
+      newHeadY++;
+    } else if (direction == Direction.UP) {
+      newHeadY--;
+    }
+
+    return new Coords(newHeadX, newHeadY);
   }
 }

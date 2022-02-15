@@ -1,6 +1,7 @@
 package ru.derendiaev.model;
 
 import lombok.Getter;
+import ru.derendiaev.model.object.Coords;
 
 /**
  * Created by DDerendiaev on 01-Feb-22.
@@ -8,18 +9,35 @@ import lombok.Getter;
 public class Field {
 
   @Getter
-  private final CellType[][] coords;
+  private final CellType[][] fieldCoords;
 
   /**
    * Field constructor.
    */
   public Field(int fieldSizeX, int fieldSizeY) {
-    coords = new CellType[fieldSizeX][fieldSizeY];
+    fieldCoords = new CellType[fieldSizeX][fieldSizeY];
 
     for (int i = 0; i < fieldSizeX; i++) {
       for (int j = 0; j < fieldSizeY; j++) {
-        coords[i][j] = CellType.FREE;
+        fieldCoords[i][j] = CellType.FREE;
       }
     }
   }
+
+  public CellType getCoordsCellType(Coords cellCoords) throws CollisionExeption {
+    checkCollision(cellCoords);
+
+    return getFieldCoords()[cellCoords.getCoordX()][cellCoords.getCoordY()];
+  }
+
+  private void checkCollision(Coords cellCoords) throws CollisionExeption {
+    int cellX = cellCoords.getCoordX();
+    int cellY = cellCoords.getCoordY();
+
+    if (cellX > fieldCoords.length - 1 || cellX < 0
+        || cellY > fieldCoords[cellX].length - 1 || cellY < 0) {
+      throw new CollisionExeption();
+    }
+  }
+
 }

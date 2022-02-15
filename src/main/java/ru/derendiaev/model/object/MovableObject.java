@@ -18,10 +18,10 @@ public class MovableObject extends FieldObject {
   private int speed;
 
   /**
-   * Field object constructor.
+   * Field fieldObject constructor.
    */
-  public MovableObject(List<Cell> cells, Direction direction, int speed) {
-    super(cells);
+  public MovableObject(List<Coords> allObjectCoords, Direction direction, int speed) {
+    super(allObjectCoords);
     this.direction = direction;
     this.speed = speed;
   }

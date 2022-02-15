@@ -6,21 +6,21 @@ import lombok.Setter;
 /**
  * Created by DDerendiaev on 02-Feb-22.
  */
-public class Cell {
+public class Coords {
 
   @Getter
   @Setter
-  private int cellX;
+  private int coordX;
 
   @Getter
   @Setter
-  private int cellY;
+  private int coordY;
 
   /**
    * Cell constructor.
    */
-  public Cell(int cellX, int cellY) {
-    this.cellX = cellX;
-    this.cellY = cellY;
+  public Coords(int coordX, int coordY) {
+    this.coordX = coordX;
+    this.coordY = coordY;
   }
 }

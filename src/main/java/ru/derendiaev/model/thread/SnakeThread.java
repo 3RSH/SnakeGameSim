@@ -1,14 +1,11 @@
 package ru.derendiaev.model.thread;
 
-import static java.lang.Thread.sleep;
-
-import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
 import ru.derendiaev.model.CellType;
-import ru.derendiaev.model.Field;
-import ru.derendiaev.model.object.Cell;
+import ru.derendiaev.model.CollisionExeption;
+import ru.derendiaev.model.object.Coords;
 import ru.derendiaev.model.object.MovableObject;
 
 /**
@@ -18,114 +15,74 @@ public class SnakeThread extends MovableThread {
 
   private final PropertyChangeSupport observer = new PropertyChangeSupport(this);
 
-  /**
-   * SnakeThread constructor.
-   */
-  public SnakeThread(MovableObject object, Field field, PropertyChangeListener listener) {
-    super(object, field);
-    observer.addPropertyChangeListener(listener);
-  }
-
-  @Override
-  public void run() {
-    while (isLive) {
-      nextCell = getNextCell();
-
-      if (canObjectMove()) {
-        move();
-      } else {
-        observer.firePropertyChange("dieThread", isLive, false);
-        isLive = false;
-      }
-
-      try {
-        sleep(1000 / object.getSpeed());
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
-    }
-  }
-
   public MovableObject getSnake() {
-    return object;
+    return fieldObject;
   }
 
   @Override
-  void move() {
-    List<Cell> cells = object.getCells();
+  void move(Coords nextHeadCoords) {
+    try {
+      checkObjectMove(nextHeadCoords);
 
-    //Fix old coords.
-    List<Cell> oldCells = new ArrayList<>(cells);
+      List<Coords> currentObjectCoords = fieldObject.getAllCoords();
+      List<Coords> nextObjectCoords = new ArrayList<>(currentObjectCoords);
 
-    //Head setting.
-    cells.set(0, nextCell);
+      nextObjectCoords.set(0, nextHeadCoords);
 
-    int bodySize = oldCells.size() - 1;
-
-    //Check nextCell and grow snake.
-    if (isGrow()) {
-      bodySize = oldCells.size();
-      cells.add(cells.get(cells.size() - 1));
-    }
-
-    //Body shift.
-    for (int i = 0; i < bodySize; i++) {
-      cells.set(i + 1, oldCells.get(i));
-    }
-
-    //Field's types change.
-    int cellX;
-    int cellY;
-
-    for (int i = 0; i < cells.size(); i++) {
-      cellX = cells.get(i).getCellX();
-      cellY = cells.get(i).getCellY();
-
-      if (i == 0) {
-        field.getCoords()[cellX][cellY] = CellType.HEAD;
-      } else if (i == cells.size() - 1) {
-        field.getCoords()[cellX][cellY] = CellType.TAIL;
-      } else {
-        field.getCoords()[cellX][cellY] = CellType.BODY;
+      for (int i = 1; i < nextObjectCoords.size(); i++) {
+        nextObjectCoords.set(i, currentObjectCoords.get(i - 1));
       }
-    }
 
-    if (cells.size() == oldCells.size()) {
-      Cell oldCell = oldCells.get(oldCells.size() - 1);
-      oldCells.clear();
-      oldCells.add(oldCell);
-      cellX = oldCell.getCellX();
-      cellY = oldCell.getCellY();
-      field.getCoords()[cellX][cellY] = CellType.FREE;
-    } else {
-      oldCells.clear();
-    }
+      if (canObjectGrow(nextHeadCoords)) {
+        nextObjectCoords.add(currentObjectCoords.get(currentObjectCoords.size() - 1));
+      }
 
-    //Fire cells change.
-    observer.firePropertyChange("changeCells", oldCells, cells);
+      int cellX;
+      int cellY;
+
+      for (int i = 0; i < nextObjectCoords.size(); i++) {
+        cellX = nextObjectCoords.get(i).getCoordX();
+        cellY = nextObjectCoords.get(i).getCoordY();
+
+        if (i == 0) {
+          field.getFieldCoords()[cellX][cellY] = CellType.HEAD;
+        } else if (i == nextObjectCoords.size() - 1) {
+          field.getFieldCoords()[cellX][cellY] = CellType.TAIL;
+        } else {
+          field.getFieldCoords()[cellX][cellY] = CellType.BODY;
+        }
+      }
+
+      if (nextObjectCoords.size() == currentObjectCoords.size()) {
+        Coords currentTailCoords = currentObjectCoords.get(currentObjectCoords.size() - 1);
+        cellX = currentTailCoords.getCoordX();
+        cellY = currentTailCoords.getCoordY();
+        field.getFieldCoords()[cellX][cellY] = CellType.FREE;
+      }
+
+      fieldObject.setAllCoords(nextObjectCoords);
+      observer.firePropertyChange("changeObjectCoords", currentObjectCoords, nextHeadCoords);
+
+
+    } catch (CollisionExeption e) {
+      isLive = false;
+      observer.firePropertyChange("threadIsDead", true, false);
+    }
   }
 
   @Override
-  boolean canObjectMove() {
-    int nextX = nextCell.getCellX();
-    int nextY = nextCell.getCellY();
+  void checkObjectMove(Coords nextHeadCoords) throws CollisionExeption {
+    CellType nextCellType = field.getCoordsCellType(nextHeadCoords);
 
-    //Collision check.
-    if (isCollision(nextX, nextY)) {
-      return false;
+    if (nextCellType == CellType.BODY || nextCellType == CellType.TAIL) {
+      throw new CollisionExeption();
     }
-
-    //CellType check and return.
-    CellType nextCellType = field.getCoords()[nextX][nextY];
-
-    return nextCellType != CellType.BODY
-        && nextCellType != CellType.TAIL;
   }
 
-  private boolean isGrow() {
-    int cellX = nextCell.getCellX();
-    int cellY = nextCell.getCellY();
+  private boolean canObjectGrow(Coords nextHeadCoords) {
+    int cellX = nextHeadCoords.getCoordX();
+    int cellY = nextHeadCoords.getCoordY();
 
-    return field.getCoords()[cellX][cellY] == CellType.FROG;
+    return field.getFieldCoords()[cellX][cellY] == CellType.FROG;
   }
 }

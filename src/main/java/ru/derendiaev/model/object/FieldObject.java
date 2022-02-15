@@ -2,6 +2,7 @@ package ru.derendiaev.model.object;
 
 import java.util.List;
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Created by DDerendiaev on 05-Feb-22.
@@ -9,12 +10,13 @@ import lombok.Getter;
 public class FieldObject {
 
   @Getter
-  private final List<Cell> cells;
+  @Setter
+  private List<Coords> allCoords;
 
   /**
-   * Field object constructor.
+   * Field fieldObject constructor.
    */
-  public FieldObject(List<Cell> cells) {
-    this.cells = cells;
+  public FieldObject(List<Coords> allObjectCoords) {
+    allCoords = allObjectCoords;
   }
 }
