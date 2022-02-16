@@ -44,16 +44,6 @@ public class ModelManager {
     }
   }
 
-  public void setSnakeListener(PropertyChangeListener listener) {
-    snakeThread.getObserver().addPropertyChangeListener(listener);
-  }
-
-  public void setFrogsListener(PropertyChangeListener listener) {
-    for (FrogThread frog : frogThreads) {
-      frog.getObserver().addPropertyChangeListener(listener);
-    }
-  }
-
   private void initField() {
     field = new Field(Config.getFieldSizeX(), Config.getFieldSizeY());
   }

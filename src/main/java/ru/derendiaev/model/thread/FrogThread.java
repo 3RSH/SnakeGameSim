@@ -14,9 +14,6 @@ import ru.derendiaev.model.object.MovableObject;
  */
 public class FrogThread extends MovableThread {
 
-  @Getter
-  private final PropertyChangeSupport observer = new PropertyChangeSupport(this);
-
   public FrogThread(MovableObject fieldObject, Field field) {
     super(fieldObject, field);
   }
@@ -33,13 +30,10 @@ public class FrogThread extends MovableThread {
       field.setCoordsCellType(currentHeadCoords, CellType.FREE);
 
       fieldObject.getAllCoords().set(0, nextHeadCoords);
-
-      observer.firePropertyChange("changeObjectCoords", currentHeadCoords, nextHeadCoords);
     } catch (CollisionException ignored) {
       //Do nothing because need only interrupt of method.
     } catch (CellTypeException e) {
       isLive = false;
-      observer.firePropertyChange("threadIsDead", true, false);
     }
   }
 

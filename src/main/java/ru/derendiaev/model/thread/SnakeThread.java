@@ -15,9 +15,6 @@ import ru.derendiaev.model.object.MovableObject;
  */
 public class SnakeThread extends MovableThread {
 
-  @Getter
-  private final PropertyChangeSupport observer = new PropertyChangeSupport(this);
-
   public SnakeThread(MovableObject fieldObject, Field field) {
     super(fieldObject, field);
   }
@@ -56,12 +53,8 @@ public class SnakeThread extends MovableThread {
       }
 
       fieldObject.setAllCoords(nextObjectCoords);
-      observer.firePropertyChange("changeObjectCoords", currentObjectCoords, nextObjectCoords);
-
-
     } catch (CollisionException e) {
       isLive = false;
-      observer.firePropertyChange("threadIsDead", true, false);
     }
   }
 
