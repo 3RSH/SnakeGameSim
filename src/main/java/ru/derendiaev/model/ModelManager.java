@@ -28,7 +28,7 @@ public class ModelManager {
   }
 
   public FrogThread createFrog() throws NotEnoughSpaceExeption {
-    int fieldArea = Config.getFieldSizeX() * Config.getFieldSizeY();
+    int fieldArea = field.getFieldCoords().length * field.getFieldCoords()[0].length;
     int frogCount = (int) frogThreads.stream().filter(MovableThread::isLive).count();
 
     if (frogCount + snakeThread.getSnake().getAllCoords().size() < fieldArea) {
@@ -82,7 +82,7 @@ public class ModelManager {
 
   private void initFrogs() {
     frogThreads = new ArrayList<>();
-    int frogsCount = (Config.getFieldSizeX() + Config.getFieldSizeY()) / 10;
+    int frogsCount = 10;
 
     for (int i = 0; i < frogsCount; i++) {
       try {
