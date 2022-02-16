@@ -1,10 +1,12 @@
 package ru.derendiaev.model.thread;
 
+import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
 import ru.derendiaev.model.CellType;
 import ru.derendiaev.model.CollisionExeption;
+import ru.derendiaev.model.Field;
 import ru.derendiaev.model.object.Coords;
 import ru.derendiaev.model.object.MovableObject;
 
@@ -17,6 +19,11 @@ public class SnakeThread extends MovableThread {
 
   public MovableObject getSnake() {
     return fieldObject;
+  }
+
+  public SnakeThread(MovableObject fieldObject, Field field,
+      PropertyChangeListener listener) {
+    super(fieldObject, field, listener);
   }
 
   @Override
@@ -37,31 +44,23 @@ public class SnakeThread extends MovableThread {
         nextObjectCoords.add(currentObjectCoords.get(currentObjectCoords.size() - 1));
       }
 
-      int cellX;
-      int cellY;
-
       for (int i = 0; i < nextObjectCoords.size(); i++) {
-        cellX = nextObjectCoords.get(i).getCoordX();
-        cellY = nextObjectCoords.get(i).getCoordY();
-
         if (i == 0) {
-          field.getFieldCoords()[cellX][cellY] = CellType.HEAD;
+          field.setCoordsCellType(nextObjectCoords.get(i), CellType.HEAD);
         } else if (i == nextObjectCoords.size() - 1) {
-          field.getFieldCoords()[cellX][cellY] = CellType.TAIL;
+          field.setCoordsCellType(nextObjectCoords.get(i), CellType.TAIL);
         } else {
-          field.getFieldCoords()[cellX][cellY] = CellType.BODY;
+          field.setCoordsCellType(nextObjectCoords.get(i), CellType.BODY);
         }
       }
 
       if (nextObjectCoords.size() == currentObjectCoords.size()) {
         Coords currentTailCoords = currentObjectCoords.get(currentObjectCoords.size() - 1);
-        cellX = currentTailCoords.getCoordX();
-        cellY = currentTailCoords.getCoordY();
-        field.getFieldCoords()[cellX][cellY] = CellType.FREE;
+        field.setCoordsCellType(currentTailCoords, CellType.FREE);
       }
 
       fieldObject.setAllCoords(nextObjectCoords);
-      observer.firePropertyChange("changeObjectCoords", currentObjectCoords, nextHeadCoords);
+      observer.firePropertyChange("changeObjectCoords", currentObjectCoords, nextObjectCoords);
 
 
     } catch (CollisionExeption e) {

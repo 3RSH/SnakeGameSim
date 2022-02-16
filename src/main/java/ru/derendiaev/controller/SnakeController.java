@@ -3,10 +3,12 @@ package ru.derendiaev.controller;
 import java.awt.Image;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import javax.swing.ImageIcon;
-import lombok.Setter;
+import ru.derendiaev.Config;
+import ru.derendiaev.Main;
 import ru.derendiaev.model.object.Coords;
 import ru.derendiaev.model.object.Direction;
 import ru.derendiaev.model.object.MovableObject;
@@ -18,17 +20,12 @@ import ru.derendiaev.view.GameField;
  */
 public class SnakeController implements PropertyChangeListener {
 
-  private Image headImage;
-  private Image bodyImage;
-  private Image tailImage;
-
-  private int stepCounter;
-
-  @Setter
+  private final Image headImage;
+  private final Image bodyImage;
+  private final Image tailImage;
   private GameField gameField;
-
-  @Setter
   private SnakeThread snakeThread;
+  private int stepCounter;
 
   /**
    * SnakeController constructor.
@@ -53,7 +50,7 @@ public class SnakeController implements PropertyChangeListener {
   public void propertyChange(PropertyChangeEvent evt) {
     String eventName = evt.getPropertyName();
 
-    //from model to view event
+    //MODEL -> VIEW
     if (eventName.equals("changeObjectCoords")) {
       stepCounter++;
 
@@ -74,13 +71,11 @@ public class SnakeController implements PropertyChangeListener {
         }
       }
 
-      gameField.repaint();
-
-      //from model to view event
+      //MODEL -> VIEW
     } else if (eventName.equals("threadIsDead")) {
       gameField.stopGame();
 
-      //from view to model event
+      //VIEW -> MODEL
     } else if (eventName.equals("changeDirection")) {
       boolean changeDirection = (boolean) evt.getNewValue();
 
@@ -100,15 +95,39 @@ public class SnakeController implements PropertyChangeListener {
         stepCounter = 0;
       }
 
-      //from view to model event
-    } else if (eventName.equals("stopGame") && snakeThread.isLive()) {
-      if (snakeThread.isLive()) {
-        snakeThread.setLive(false);
-      }
+      //VIEW -> MODEL
+    } else if (eventName.equals("startGame")) {
+      startSnake();
 
-      //from view to model event
-    } else if (eventName.equals("nextTenPoints") && snakeThread.isLive()) {
+      //VIEW -> MODEL
+    } else if (eventName.equals("stopGame")) {
+      snakeThread.setLive(false);
+      init(gameField);
+
+      //VIEW -> MODEL
+    } else if (eventName.equals("nextTenPoints")) {
       snakeThread.getSnake().setSpeed(snakeThread.getSnake().getSpeed() + (int) evt.getNewValue());
     }
+  }
+
+  /**
+   * SnakeController initialization.
+   */
+  public void init(GameField gameField) {
+    this.gameField = gameField;
+    List<Coords> snakeAllCoords = new ArrayList<>();
+
+    for (int i = Config.getSnakeStartSize(); i > 0; i--) {
+      snakeAllCoords.add(new Coords(i - 1, 0));
+    }
+
+    MovableObject snake =
+        new MovableObject(snakeAllCoords, Direction.RIGHT, Config.getSnakeStartSpeed());
+    snakeThread = new SnakeThread(snake, Main.getFieldModel(), this);
+  }
+
+  private void startSnake() {
+    Thread thread = new Thread(snakeThread);
+    thread.start();
   }
 }

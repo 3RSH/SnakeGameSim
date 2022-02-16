@@ -1,5 +1,8 @@
 package ru.derendiaev.model;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import lombok.Getter;
 import ru.derendiaev.model.object.Coords;
 
@@ -24,10 +27,43 @@ public class Field {
     }
   }
 
+  /**
+   * Get CellType by coordinates.
+   */
   public CellType getCoordsCellType(Coords cellCoords) throws CollisionExeption {
     checkCollision(cellCoords);
 
     return getFieldCoords()[cellCoords.getCoordX()][cellCoords.getCoordY()];
+  }
+
+  /**
+   * Set CellType by coordinates.
+   */
+  public void setCoordsCellType(Coords cellCoords, CellType type) {
+    int cellX = cellCoords.getCoordX();
+    int cellY = cellCoords.getCoordY();
+    fieldCoords[cellX][cellY] = type;
+  }
+
+  /**
+   * Get list of coordinates for new frog-object.
+   */
+  public List<Coords> getNewFrogCoords() {
+    int frogX;
+    int frogY;
+    Random random = new Random();
+
+    do {
+      frogX = random.nextInt(fieldCoords.length);
+      frogY = random.nextInt(fieldCoords[0].length);
+    } while (fieldCoords[frogX][frogY] != CellType.FREE);
+
+    fieldCoords[frogX][frogY] = CellType.FROG;
+
+    List<Coords> frogCells = new ArrayList<>(1);
+    frogCells.add(new Coords(frogX, frogY));
+
+    return frogCells;
   }
 
   private void checkCollision(Coords cellCoords) throws CollisionExeption {
@@ -39,5 +75,4 @@ public class Field {
       throw new CollisionExeption();
     }
   }
-
 }
