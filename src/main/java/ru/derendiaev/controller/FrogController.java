@@ -10,7 +10,7 @@ import javax.swing.ImageIcon;
 import lombok.Setter;
 import ru.derendiaev.Config;
 import ru.derendiaev.Main;
-import ru.derendiaev.NotEnoughSpaceExeption;
+import ru.derendiaev.model.exception.NotEnoughSpaceException;
 import ru.derendiaev.model.RandomDirectionGenerator;
 import ru.derendiaev.model.object.Coords;
 import ru.derendiaev.model.object.MovableObject;
@@ -64,7 +64,7 @@ public class FrogController implements PropertyChangeListener {
         FrogThread newFrog = createFrog();
         frogThreads.add(newFrog);
         startFrog(newFrog);
-      } catch (NotEnoughSpaceExeption ignored) {
+      } catch (NotEnoughSpaceException ignored) {
         //Do nothing because need only interrupt of method.
       }
 
@@ -91,7 +91,7 @@ public class FrogController implements PropertyChangeListener {
       try {
         FrogThread frogThread = createFrog();
         frogThreads.add(frogThread);
-      } catch (NotEnoughSpaceExeption ignored) {
+      } catch (NotEnoughSpaceException ignored) {
         //Do nothing because need only interrupt of method.
       }
     }
@@ -102,7 +102,7 @@ public class FrogController implements PropertyChangeListener {
     thread.start();
   }
 
-  private FrogThread createFrog() throws NotEnoughSpaceExeption {
+  private FrogThread createFrog() throws NotEnoughSpaceException {
     int fieldSizeX = Main.getFieldModel().getFieldCoords().length;
     int fieldSizeY = Main.getFieldModel().getFieldCoords()[0].length;
     int fieldArea = fieldSizeX * fieldSizeY;
@@ -114,7 +114,7 @@ public class FrogController implements PropertyChangeListener {
           frogCoords, RandomDirectionGenerator.getRandomObjectDirection(), 1);
       return new FrogThread(frog, Main.getFieldModel(), this);
     } else {
-      throw new NotEnoughSpaceExeption();
+      throw new NotEnoughSpaceException();
     }
   }
 }

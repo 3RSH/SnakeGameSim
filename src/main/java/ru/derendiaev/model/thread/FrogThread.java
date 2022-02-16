@@ -2,9 +2,9 @@ package ru.derendiaev.model.thread;
 
 import java.beans.PropertyChangeSupport;
 import lombok.Getter;
-import ru.derendiaev.CellTypeExeption;
+import ru.derendiaev.model.exception.CellTypeException;
 import ru.derendiaev.model.CellType;
-import ru.derendiaev.model.CollisionExeption;
+import ru.derendiaev.model.exception.CollisionException;
 import ru.derendiaev.model.Field;
 import ru.derendiaev.model.object.Coords;
 import ru.derendiaev.model.object.MovableObject;
@@ -26,7 +26,7 @@ public class FrogThread extends MovableThread {
     try {
       Coords currentHeadCoords = fieldObject.getAllCoords().get(0);
 
-      checkCellTypeExeption(currentHeadCoords);
+      checkCellTypeException(currentHeadCoords);
       checkObjectMove(nextHeadCoords);
 
       field.setCoordsCellType(nextHeadCoords, CellType.FROG);
@@ -35,27 +35,27 @@ public class FrogThread extends MovableThread {
       fieldObject.getAllCoords().set(0, nextHeadCoords);
 
       observer.firePropertyChange("changeObjectCoords", currentHeadCoords, nextHeadCoords);
-    } catch (CollisionExeption ignored) {
+    } catch (CollisionException ignored) {
       //Do nothing because need only interrupt of method.
-    } catch (CellTypeExeption e) {
+    } catch (CellTypeException e) {
       isLive = false;
       observer.firePropertyChange("threadIsDead", true, false);
     }
   }
 
   @Override
-  void checkObjectMove(Coords nextHeadCoords) throws CollisionExeption {
+  void checkObjectMove(Coords nextHeadCoords) throws CollisionException {
     CellType nextCellType = field.getCoordsCellType(nextHeadCoords);
 
     if (nextCellType != CellType.FREE) {
-      throw new CollisionExeption();
+      throw new CollisionException();
     }
   }
 
-  private void checkCellTypeExeption(Coords headCoords) throws CollisionExeption, CellTypeExeption {
+  private void checkCellTypeException(Coords headCoords) throws CollisionException, CellTypeException {
 
     if (field.getCoordsCellType(headCoords) != CellType.FROG) {
-      throw new CellTypeExeption();
+      throw new CellTypeException();
     }
   }
 }

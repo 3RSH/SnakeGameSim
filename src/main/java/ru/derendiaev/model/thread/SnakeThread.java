@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import ru.derendiaev.model.CellType;
-import ru.derendiaev.model.CollisionExeption;
+import ru.derendiaev.model.exception.CollisionException;
 import ru.derendiaev.model.Field;
 import ru.derendiaev.model.object.Coords;
 import ru.derendiaev.model.object.MovableObject;
@@ -59,18 +59,18 @@ public class SnakeThread extends MovableThread {
       observer.firePropertyChange("changeObjectCoords", currentObjectCoords, nextObjectCoords);
 
 
-    } catch (CollisionExeption e) {
+    } catch (CollisionException e) {
       isLive = false;
       observer.firePropertyChange("threadIsDead", true, false);
     }
   }
 
   @Override
-  void checkObjectMove(Coords nextHeadCoords) throws CollisionExeption {
+  void checkObjectMove(Coords nextHeadCoords) throws CollisionException {
     CellType nextCellType = field.getCoordsCellType(nextHeadCoords);
 
     if (nextCellType == CellType.BODY || nextCellType == CellType.TAIL) {
-      throw new CollisionExeption();
+      throw new CollisionException();
     }
   }
 

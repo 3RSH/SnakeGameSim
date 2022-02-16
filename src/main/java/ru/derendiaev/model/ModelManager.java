@@ -4,7 +4,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 import ru.derendiaev.Config;
-import ru.derendiaev.NotEnoughSpaceExeption;
+import ru.derendiaev.model.exception.NotEnoughSpaceException;
 import ru.derendiaev.model.object.Coords;
 import ru.derendiaev.model.object.Direction;
 import ru.derendiaev.model.object.MovableObject;
@@ -27,7 +27,7 @@ public class ModelManager {
     initFrogs();
   }
 
-  public FrogThread createFrog() throws NotEnoughSpaceExeption {
+  public FrogThread createFrog() throws NotEnoughSpaceException {
     int fieldArea = field.getFieldCoords().length * field.getFieldCoords()[0].length;
     int frogCount = (int) frogThreads.stream().filter(MovableThread::isLive).count();
 
@@ -40,7 +40,7 @@ public class ModelManager {
           frogCoords, RandomDirectionGenerator.getRandomObjectDirection(), 1);
       return new FrogThread(frog, field);
     } else {
-      throw new NotEnoughSpaceExeption();
+      throw new NotEnoughSpaceException();
     }
   }
 
@@ -88,7 +88,7 @@ public class ModelManager {
       try {
         FrogThread frogThread = createFrog();
         frogThreads.add(frogThread);
-      } catch (NotEnoughSpaceExeption ignored) {
+      } catch (NotEnoughSpaceException ignored) {
         //Do nothing because need only interrupt of method.
       }
     }
