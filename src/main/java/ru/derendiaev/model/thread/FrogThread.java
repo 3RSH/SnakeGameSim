@@ -1,7 +1,7 @@
 package ru.derendiaev.model.thread;
 
-import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import lombok.Getter;
 import ru.derendiaev.CellTypeExeption;
 import ru.derendiaev.model.CellType;
 import ru.derendiaev.model.CollisionExeption;
@@ -14,11 +14,11 @@ import ru.derendiaev.model.object.MovableObject;
  */
 public class FrogThread extends MovableThread {
 
+  @Getter
   private final PropertyChangeSupport observer = new PropertyChangeSupport(this);
 
-  public FrogThread(MovableObject fieldObject,
-      Field field, PropertyChangeListener listener) {
-    super(fieldObject, field, listener);
+  public FrogThread(MovableObject fieldObject, Field field) {
+    super(fieldObject, field);
   }
 
   @Override

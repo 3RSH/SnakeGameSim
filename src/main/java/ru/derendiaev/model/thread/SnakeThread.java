@@ -1,9 +1,9 @@
 package ru.derendiaev.model.thread;
 
-import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
 import ru.derendiaev.model.CellType;
 import ru.derendiaev.model.CollisionExeption;
 import ru.derendiaev.model.Field;
@@ -15,15 +15,11 @@ import ru.derendiaev.model.object.MovableObject;
  */
 public class SnakeThread extends MovableThread {
 
+  @Getter
   private final PropertyChangeSupport observer = new PropertyChangeSupport(this);
 
-  public MovableObject getSnake() {
-    return fieldObject;
-  }
-
-  public SnakeThread(MovableObject fieldObject, Field field,
-      PropertyChangeListener listener) {
-    super(fieldObject, field, listener);
+  public SnakeThread(MovableObject fieldObject, Field field) {
+    super(fieldObject, field);
   }
 
   @Override
@@ -83,5 +79,9 @@ public class SnakeThread extends MovableThread {
     int cellY = nextHeadCoords.getCoordY();
 
     return field.getFieldCoords()[cellX][cellY] == CellType.FROG;
+  }
+
+  public MovableObject getSnake() {
+    return fieldObject;
   }
 }

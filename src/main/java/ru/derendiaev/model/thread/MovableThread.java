@@ -2,8 +2,6 @@ package ru.derendiaev.model.thread;
 
 import static java.lang.Thread.sleep;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import lombok.Getter;
 import lombok.Setter;
 import ru.derendiaev.model.CollisionExeption;
@@ -17,7 +15,6 @@ import ru.derendiaev.model.object.MovableObject;
  */
 public abstract class MovableThread implements Runnable {
 
-  protected final PropertyChangeSupport observer = new PropertyChangeSupport(this);
   protected final MovableObject fieldObject;
   protected final Field field;
 
@@ -28,8 +25,7 @@ public abstract class MovableThread implements Runnable {
   /**
    * Thread constructor.
    */
-  public MovableThread(MovableObject fieldObject, Field field, PropertyChangeListener listener) {
-    observer.addPropertyChangeListener(listener);
+  public MovableThread(MovableObject fieldObject, Field field) {
     this.fieldObject = fieldObject;
     this.field = field;
     isLive = true;
