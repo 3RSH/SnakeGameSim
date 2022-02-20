@@ -1,10 +1,12 @@
 package ru.derendiaev.model;
 
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import lombok.Getter;
+import lombok.Setter;
 import ru.derendiaev.Config;
-import ru.derendiaev.model.exception.NotEnoughSpaceException;
 import ru.derendiaev.model.object.Coords;
 import ru.derendiaev.model.object.Direction;
 import ru.derendiaev.model.object.MovableObject;
@@ -21,26 +23,54 @@ public class ModelManager {
   private SnakeThread snakeThread;
   private List<FrogThread> frogThreads;
 
+  @Getter
+  @Setter
+  private boolean modelIsRunning;
+
+  /**
+   * Model initialization.
+   */
   public void initModel() {
     initField();
     initSnake();
     initFrogs();
   }
 
-  public FrogThread createFrog() throws NotEnoughSpaceException {
-    int fieldArea = field.getFieldCoords().length * field.getFieldCoords()[0].length;
-    int frogCount = (int) frogThreads.stream().filter(MovableThread::isLive).count();
+  /**
+   * Run model's threads.
+   */
+  public void startModel() {
+    modelIsRunning = true;
+    ExecutorService service = Executors.newFixedThreadPool(frogThreads.size() + 1);
+    service.execute(snakeThread);
+    frogThreads.forEach(service::execute);
+  }
 
-    if (frogCount + snakeThread.getSnake().getAllCoords().size() < fieldArea) {
-      List<Coords> frogCoords = field.getNewFrogCoords();
 
-      field.setCoordsCellType(frogCoords.get(0), CellType.FROG);
+  /**
+   * Stop model's threads.
+   */
+  public void stopModel() {
+    modelIsRunning = false;
+    snakeThread.setLive(false);
+    frogThreads.forEach(frog -> frog.setLive(false));
+  }
 
-      MovableObject frog = new MovableObject(
-          frogCoords, RandomDirectionGenerator.getRandomObjectDirection(), 1);
-      return new FrogThread(frog, field);
-    } else {
-      throw new NotEnoughSpaceException();
+  /**
+   * Stop frog's thread by index and create new one.
+   */
+  public synchronized void respawnFrog(int frogIndex) {
+    killFrogByIndex(frogIndex);
+
+    if (modelIsRunning) {
+      FrogThread frogThread = createFrog();
+
+      if (frogThread != null) {
+        frogThread.setIndex(frogIndex);
+        frogThreads.set(frogIndex, frogThread);
+        Thread frog = new Thread(frogThread);
+        frog.start();
+      }
     }
   }
 
@@ -67,20 +97,41 @@ public class ModelManager {
 
     MovableObject snake =
         new MovableObject(snakeAllCoords, Direction.RIGHT, Config.getSnakeStartSpeed());
-    snakeThread = new SnakeThread(snake, field);
+    snakeThread = new SnakeThread(snake, field, this);
   }
 
   private void initFrogs() {
     frogThreads = new ArrayList<>();
-    int frogsCount = 10;
+    int frogAmount = Config.getFrogsAmount();
 
-    for (int i = 0; i < frogsCount; i++) {
-      try {
-        FrogThread frogThread = createFrog();
+    for (int i = 0; i < frogAmount; i++) {
+      FrogThread frogThread = createFrog();
+
+      if (frogThread != null) {
+        frogThread.setIndex(i);
         frogThreads.add(frogThread);
-      } catch (NotEnoughSpaceException ignored) {
-        //Do nothing because need only interrupt of method.
       }
     }
+  }
+
+  private FrogThread createFrog() {
+    int fieldArea = field.getFieldCoords().length * field.getFieldCoords()[0].length;
+    int frogCount = (int) frogThreads.stream().filter(MovableThread::isLive).count();
+
+    if (frogCount + snakeThread.getSnake().getAllCoords().size() < fieldArea) {
+      List<Coords> frogCoords = field.getNewFrogCoords();
+
+      field.setCoordsCellType(frogCoords.get(0), CellType.FROG);
+
+      MovableObject frog = new MovableObject(
+          frogCoords, RandomDirectionGenerator.getRandomObjectDirection(), 1);
+      return new FrogThread(frog, field, this);
+    }
+
+    return null;
+  }
+
+  private void killFrogByIndex(int frogIndex) {
+    frogThreads.get(frogIndex).setLive(false);
   }
 }

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import lombok.Getter;
-import ru.derendiaev.model.exception.CollisionException;
 import ru.derendiaev.model.object.Coords;
 
 /**
@@ -31,8 +30,10 @@ public class Field {
   /**
    * Get CellType by coordinates.
    */
-  public CellType getCoordsCellType(Coords cellCoords) throws CollisionException {
-    checkCollision(cellCoords);
+  public CellType getCoordsCellType(Coords cellCoords) {
+    if (isCollision(cellCoords)) {
+      return null;
+    }
 
     return getFieldCoords()[cellCoords.getCoordX()][cellCoords.getCoordY()];
   }
@@ -67,13 +68,11 @@ public class Field {
     return frogCells;
   }
 
-  private void checkCollision(Coords cellCoords) throws CollisionException {
+  private boolean isCollision(Coords cellCoords) {
     int cellX = cellCoords.getCoordX();
     int cellY = cellCoords.getCoordY();
 
-    if (cellX > fieldCoords.length - 1 || cellX < 0
-        || cellY > fieldCoords[cellX].length - 1 || cellY < 0) {
-      throw new CollisionException();
-    }
+    return cellX > fieldCoords.length - 1 || cellX < 0
+        || cellY > fieldCoords[cellX].length - 1 || cellY < 0;
   }
 }

@@ -4,8 +4,8 @@ import static java.lang.Thread.sleep;
 
 import lombok.Getter;
 import lombok.Setter;
-import ru.derendiaev.model.exception.CollisionException;
 import ru.derendiaev.model.Field;
+import ru.derendiaev.model.ModelManager;
 import ru.derendiaev.model.object.Coords;
 import ru.derendiaev.model.object.Direction;
 import ru.derendiaev.model.object.MovableObject;
@@ -17,6 +17,7 @@ public abstract class MovableThread implements Runnable {
 
   protected final MovableObject fieldObject;
   protected final Field field;
+  protected final ModelManager manager;
 
   @Getter
   @Setter
@@ -25,9 +26,10 @@ public abstract class MovableThread implements Runnable {
   /**
    * Thread constructor.
    */
-  public MovableThread(MovableObject fieldObject, Field field) {
+  public MovableThread(MovableObject fieldObject, Field field, ModelManager manager) {
     this.fieldObject = fieldObject;
     this.field = field;
+    this.manager = manager;
     isLive = true;
   }
 
@@ -46,7 +48,7 @@ public abstract class MovableThread implements Runnable {
 
   abstract void move(Coords nextHeadCoords);
 
-  abstract void checkObjectMove(Coords nextHeadCoords) throws CollisionException;
+  abstract boolean canObjectMove(Coords nextHeadCoords);
 
   protected Coords getNextHeadCoords() {
     Coords headCoords = fieldObject.getAllCoords().get(0);

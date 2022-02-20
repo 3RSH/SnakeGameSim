@@ -22,6 +22,9 @@ public class Config {
   @Getter
   private static int snakeStartSpeed = 2;
 
+  @Getter
+  private static int frogsAmount = 10;
+
   protected static void setCustomParam(String[] args) {
     if (isCorrectX(Integer.parseInt(args[0]))) {
       fieldSizeX = Integer.parseInt(args[0]);
