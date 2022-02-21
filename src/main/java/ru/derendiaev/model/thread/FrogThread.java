@@ -35,8 +35,7 @@ public class FrogThread extends MovableThread {
     }
   }
 
-  @Override
-  boolean canObjectMove(Coords nextHeadCoords) {
+  private boolean canObjectMove(Coords nextHeadCoords) {
     CellType nextCellType = field.getCoordsCellType(nextHeadCoords);
 
     return nextCellType != CellType.FREE;

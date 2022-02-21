@@ -2,6 +2,7 @@ package ru.derendiaev.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import lombok.Getter;
@@ -21,7 +22,7 @@ public class ModelManager {
 
   private Field field;
   private SnakeThread snakeThread;
-  private List<FrogThread> frogThreads;
+  private CopyOnWriteArrayList<FrogThread> frogThreads;
 
   @Getter
   @Setter
@@ -44,6 +45,7 @@ public class ModelManager {
     ExecutorService service = Executors.newFixedThreadPool(frogThreads.size() + 1);
     service.execute(snakeThread);
     frogThreads.forEach(service::execute);
+    service.shutdown();
   }
 
 
@@ -59,7 +61,7 @@ public class ModelManager {
   /**
    * Stop frog's thread by index and create new one.
    */
-  public synchronized void respawnFrog(int frogIndex) {
+  public void respawnFrog(int frogIndex) {
     killFrogByIndex(frogIndex);
 
     if (modelIsRunning) {
@@ -101,7 +103,7 @@ public class ModelManager {
   }
 
   private void initFrogs() {
-    frogThreads = new ArrayList<>();
+    frogThreads = new CopyOnWriteArrayList<>();
     int frogAmount = Config.getFrogsAmount();
 
     for (int i = 0; i < frogAmount; i++) {
@@ -115,11 +117,11 @@ public class ModelManager {
   }
 
   private FrogThread createFrog() {
-    int fieldArea = field.getFieldCoords().length * field.getFieldCoords()[0].length;
+    int fieldArea = Config.getFieldSizeX() * Config.getFieldSizeY();
     int frogCount = (int) frogThreads.stream().filter(MovableThread::isLive).count();
 
     if (frogCount + snakeThread.getSnake().getAllCoords().size() < fieldArea) {
-      List<Coords> frogCoords = field.getNewFrogCoords();
+      List<Coords> frogCoords = field.getAnyFreeCoords();
 
       field.setCoordsCellType(frogCoords.get(0), CellType.FROG);
 

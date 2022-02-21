@@ -41,22 +41,18 @@ public class SnakeThread extends MovableThread {
     }
   }
 
-  @Override
-  boolean canObjectMove(Coords nextHeadCoords) {
+  public MovableObject getSnake() {
+    return fieldObject;
+  }
+
+  private boolean canObjectMove(Coords nextHeadCoords) {
     CellType nextCellType = field.getCoordsCellType(nextHeadCoords);
 
     return nextCellType == CellType.FREE || nextCellType == CellType.FROG;
   }
 
-  public MovableObject getSnake() {
-    return fieldObject;
-  }
-
   private boolean canObjectGrow(Coords nextHeadCoords) {
-    int cellX = nextHeadCoords.getCoordX();
-    int cellY = nextHeadCoords.getCoordY();
-
-    return field.getFieldCoords()[cellX][cellY] == CellType.FROG;
+    return field.getCoordsCellType(nextHeadCoords) == CellType.FROG;
   }
 
   private void changeField(List<Coords> currentObjectCoords, List<Coords> nextObjectCoords) {

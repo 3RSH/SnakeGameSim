@@ -3,7 +3,6 @@ package ru.derendiaev.model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import lombok.Getter;
 import ru.derendiaev.model.object.Coords;
 
 /**
@@ -11,7 +10,6 @@ import ru.derendiaev.model.object.Coords;
  */
 public class Field {
 
-  @Getter
   private final CellType[][] fieldCoords;
 
   /**
@@ -30,18 +28,18 @@ public class Field {
   /**
    * Get CellType by coordinates.
    */
-  public CellType getCoordsCellType(Coords cellCoords) {
+  public synchronized CellType getCoordsCellType(Coords cellCoords) {
     if (isCollision(cellCoords)) {
       return null;
     }
 
-    return getFieldCoords()[cellCoords.getCoordX()][cellCoords.getCoordY()];
+    return fieldCoords[cellCoords.getCoordX()][cellCoords.getCoordY()];
   }
 
   /**
    * Set CellType by coordinates.
    */
-  public void setCoordsCellType(Coords cellCoords, CellType type) {
+  public synchronized void setCoordsCellType(Coords cellCoords, CellType type) {
     int cellX = cellCoords.getCoordX();
     int cellY = cellCoords.getCoordY();
     fieldCoords[cellX][cellY] = type;
@@ -50,7 +48,7 @@ public class Field {
   /**
    * Get list of coordinates for new frog-object.
    */
-  public List<Coords> getNewFrogCoords() {
+  public synchronized List<Coords> getAnyFreeCoords() {
     int frogX;
     int frogY;
     Random random = new Random();

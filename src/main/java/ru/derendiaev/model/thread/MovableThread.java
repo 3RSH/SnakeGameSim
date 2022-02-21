@@ -48,8 +48,6 @@ public abstract class MovableThread implements Runnable {
 
   abstract void move(Coords nextHeadCoords);
 
-  abstract boolean canObjectMove(Coords nextHeadCoords);
-
   protected Coords getNextHeadCoords() {
     Coords headCoords = fieldObject.getAllCoords().get(0);
 
