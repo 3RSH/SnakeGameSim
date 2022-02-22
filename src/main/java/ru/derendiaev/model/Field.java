@@ -1,7 +1,5 @@
 package ru.derendiaev.model;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 import ru.derendiaev.model.object.Coords;
 
@@ -17,12 +15,6 @@ public class Field {
    */
   public Field(int fieldSizeX, int fieldSizeY) {
     fieldCoords = new CellType[fieldSizeX][fieldSizeY];
-
-    for (int i = 0; i < fieldSizeX; i++) {
-      for (int j = 0; j < fieldSizeY; j++) {
-        fieldCoords[i][j] = CellType.FREE;
-      }
-    }
   }
 
   /**
@@ -48,7 +40,7 @@ public class Field {
   /**
    * Get list of coordinates for new frog-object.
    */
-  public synchronized List<Coords> getAnyFreeCoords() {
+  public synchronized Coords getAnyFreeCoords() {
     int frogX;
     int frogY;
     Random random = new Random();
@@ -56,14 +48,9 @@ public class Field {
     do {
       frogX = random.nextInt(fieldCoords.length);
       frogY = random.nextInt(fieldCoords[0].length);
-    } while (fieldCoords[frogX][frogY] != CellType.FREE);
+    } while (fieldCoords[frogX][frogY].getName() != null);
 
-    fieldCoords[frogX][frogY] = CellType.FROG;
-
-    List<Coords> frogCells = new ArrayList<>(1);
-    frogCells.add(new Coords(frogX, frogY));
-
-    return frogCells;
+    return new Coords(frogX, frogY);
   }
 
   private boolean isCollision(Coords cellCoords) {

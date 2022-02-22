@@ -48,28 +48,46 @@ public class SnakeThread extends MovableThread {
   private boolean canObjectMove(Coords nextHeadCoords) {
     CellType nextCellType = field.getCoordsCellType(nextHeadCoords);
 
-    return nextCellType == CellType.FREE || nextCellType == CellType.FROG;
+    if (nextCellType != null) {
+      return nextCellType.getName() == null || nextCellType.getName().matches("frog[0-9]+");
+    }
+
+    return false;
   }
 
   private boolean canObjectGrow(Coords nextHeadCoords) {
-    return field.getCoordsCellType(nextHeadCoords) == CellType.FROG;
+    String coordsType = field.getCoordsCellType(nextHeadCoords).getName();
+
+    if (coordsType.matches("frog[0-9]+")) {
+      manager.respawnFrog(coordsType);
+      return true;
+    }
+
+    return false;
   }
 
   private void changeField(List<Coords> currentObjectCoords, List<Coords> nextObjectCoords) {
+    CellType head = new CellType();
+    CellType tail = new CellType();
+    CellType body = new CellType();
+    head.setName("head");
+    tail.setName("tail");
+    body.setName("body");
 
     for (int i = 0; i < nextObjectCoords.size(); i++) {
       if (i == 0) {
-        field.setCoordsCellType(nextObjectCoords.get(i), CellType.HEAD);
+        field.setCoordsCellType(nextObjectCoords.get(i), head);
       } else if (i == nextObjectCoords.size() - 1) {
-        field.setCoordsCellType(nextObjectCoords.get(i), CellType.TAIL);
+        field.setCoordsCellType(nextObjectCoords.get(i), tail);
       } else {
-        field.setCoordsCellType(nextObjectCoords.get(i), CellType.BODY);
+        field.setCoordsCellType(nextObjectCoords.get(i), body);
       }
     }
 
     if (nextObjectCoords.size() == currentObjectCoords.size()) {
       Coords currentTailCoords = currentObjectCoords.get(currentObjectCoords.size() - 1);
-      field.setCoordsCellType(currentTailCoords, CellType.FREE);
+      CellType free = new CellType();
+      field.setCoordsCellType(currentTailCoords, free);
     }
   }
 }

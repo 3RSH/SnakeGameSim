@@ -5,6 +5,7 @@ import lombok.Setter;
 import ru.derendiaev.model.CellType;
 import ru.derendiaev.model.Field;
 import ru.derendiaev.model.ModelManager;
+import ru.derendiaev.model.RandomDirectionGenerator;
 import ru.derendiaev.model.object.Coords;
 import ru.derendiaev.model.object.MovableObject;
 
@@ -17,6 +18,10 @@ public class FrogThread extends MovableThread {
   @Getter
   private int index;
 
+  @Getter
+  @Setter
+  private String name;
+
   public FrogThread(MovableObject fieldObject, Field field, ModelManager manager) {
     super(fieldObject, field, manager);
   }
@@ -24,20 +29,25 @@ public class FrogThread extends MovableThread {
   @Override
   void move(Coords nextHeadCoords) {
     Coords currentHeadCoords = fieldObject.getAllCoords().get(0);
+    CellType frog = new CellType();
+    frog.setName(name);
 
-    if (field.getCoordsCellType(currentHeadCoords) != CellType.FROG) {
-      manager.respawnFrog(index);
-
-    } else if (canObjectMove(nextHeadCoords)) {
-      field.setCoordsCellType(nextHeadCoords, CellType.FROG);
-      field.setCoordsCellType(currentHeadCoords, CellType.FREE);
+    if (canObjectMove(nextHeadCoords)) {
+      field.setCoordsCellType(nextHeadCoords, frog);
+      field.setCoordsCellType(currentHeadCoords, new CellType());
       fieldObject.getAllCoords().set(0, nextHeadCoords);
     }
+
+    changeDirection();
   }
 
   private boolean canObjectMove(Coords nextHeadCoords) {
     CellType nextCellType = field.getCoordsCellType(nextHeadCoords);
 
-    return nextCellType != CellType.FREE;
+    return nextCellType.getName() != null;
+  }
+
+  private void changeDirection() {
+    fieldObject.setDirection(RandomDirectionGenerator.getRandomObjectDirection());
   }
 }
