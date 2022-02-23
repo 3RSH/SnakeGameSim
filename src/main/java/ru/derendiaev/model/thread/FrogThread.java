@@ -1,53 +1,48 @@
 package ru.derendiaev.model.thread;
 
-import lombok.Getter;
-import lombok.Setter;
-import ru.derendiaev.model.CellType;
+import java.util.List;
+import ru.derendiaev.model.Coords;
 import ru.derendiaev.model.Field;
 import ru.derendiaev.model.ModelManager;
 import ru.derendiaev.model.RandomDirectionGenerator;
-import ru.derendiaev.model.object.Coords;
-import ru.derendiaev.model.object.MovableObject;
+import ru.derendiaev.model.object.MovableCellObject;
 
 /**
  * Created by DDerendiaev on 05-Feb-22.
  */
 public class FrogThread extends MovableThread {
 
-  @Setter
-  @Getter
-  private int index;
-
-  @Getter
-  @Setter
-  private String name;
-
-  public FrogThread(MovableObject fieldObject, Field field, ModelManager manager) {
-    super(fieldObject, field, manager);
+  /**
+   * FrogThread constructor.
+   */
+  public FrogThread(List<MovableCellObject> objects, Field field, ModelManager manager) {
+    super(objects, field, manager);
   }
 
   @Override
-  void move(Coords nextHeadCoords) {
-    Coords currentHeadCoords = fieldObject.getAllCoords().get(0);
-    CellType frog = new CellType();
-    frog.setName(name);
+  void move() {
+    MovableCellObject frogObject = objects.get(0);
+    Coords currentHeadCoords = frogObject.getCoords();
+    Coords nextHeadCoords = getNextHeadCoords(frogObject);
 
     if (canObjectMove(nextHeadCoords)) {
-      field.setCoordsCellType(nextHeadCoords, frog);
-      field.setCoordsCellType(currentHeadCoords, new CellType());
-      fieldObject.getAllCoords().set(0, nextHeadCoords);
+      frogObject.setCoords(nextHeadCoords);
+      field.setObjectByCoords(frogObject, nextHeadCoords);
+      field.deleteObjectByCoords(currentHeadCoords);
     }
 
     changeDirection();
   }
 
   private boolean canObjectMove(Coords nextHeadCoords) {
-    CellType nextCellType = field.getCoordsCellType(nextHeadCoords);
+    if (field.isCollision(nextHeadCoords)) {
+      return false;
+    }
 
-    return nextCellType.getName() != null;
+    return field.getObjectByCoords(nextHeadCoords) == null;
   }
 
   private void changeDirection() {
-    fieldObject.setDirection(RandomDirectionGenerator.getRandomObjectDirection());
+    objects.get(0).setDirection(RandomDirectionGenerator.getRandomObjectDirection());
   }
 }

@@ -1,13 +1,12 @@
 package ru.derendiaev.model.object;
 
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
 /**
  * Created by DDerendiaev on 07-Feb-22.
  */
-public class MovableObject extends FieldObject {
+public class MovableCellObject extends CellObject {
 
   @Getter
   @Setter
@@ -18,10 +17,10 @@ public class MovableObject extends FieldObject {
   private int speed;
 
   /**
-   * Field fieldObject constructor.
+   * MovableCellObject constructor.
    */
-  public MovableObject(List<Coords> allObjectCoords, Direction direction, int speed) {
-    super(allObjectCoords);
+  public MovableCellObject(ObjectType type, Direction direction, int speed) {
+    super(type);
     this.direction = direction;
     this.speed = speed;
   }

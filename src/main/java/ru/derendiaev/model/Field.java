@@ -1,63 +1,56 @@
 package ru.derendiaev.model;
 
-import java.util.Random;
-import ru.derendiaev.model.object.Coords;
+import ru.derendiaev.model.object.CellObject;
 
 /**
  * Created by DDerendiaev on 01-Feb-22.
  */
 public class Field {
 
-  private final CellType[][] fieldCoords;
+  private final CellObject[][] objects;
 
   /**
    * Field constructor.
    */
   public Field(int fieldSizeX, int fieldSizeY) {
-    fieldCoords = new CellType[fieldSizeX][fieldSizeY];
+    objects = new CellObject[fieldSizeX][fieldSizeY];
   }
 
   /**
-   * Get CellType by coordinates.
+   * Check coordinates' collision.
    */
-  public synchronized CellType getCoordsCellType(Coords cellCoords) {
-    if (isCollision(cellCoords)) {
+  public boolean isCollision(Coords coords) {
+    return coords.getCoordX() > objects.length - 1 || coords.getCoordX() < 0
+        || coords.getCoordY() > objects[0].length - 1 || coords.getCoordY() < 0;
+  }
+
+  /**
+   * Get FieldObject by coordinates.
+   */
+  public synchronized CellObject getObjectByCoords(Coords coords) {
+    if (isCollision(coords)) {
       return null;
     }
 
-    return fieldCoords[cellCoords.getCoordX()][cellCoords.getCoordY()];
+    return objects[coords.getCoordX()][coords.getCoordY()];
   }
 
   /**
-   * Set CellType by coordinates.
+   * Set FieldObject by coordinates.
    */
-  public synchronized void setCoordsCellType(Coords cellCoords, CellType type) {
-    int cellX = cellCoords.getCoordX();
-    int cellY = cellCoords.getCoordY();
-    fieldCoords[cellX][cellY] = type;
+  public synchronized void setObjectByCoords(CellObject object, Coords coords) {
+    if (!isCollision(coords)) {
+      object.setCoords(coords);
+      objects[coords.getCoordX()][coords.getCoordY()] = object;
+    }
   }
 
   /**
-   * Get list of coordinates for new frog-object.
+   * Delete FieldObject by coordinates.
    */
-  public synchronized Coords getAnyFreeCoords() {
-    int frogX;
-    int frogY;
-    Random random = new Random();
-
-    do {
-      frogX = random.nextInt(fieldCoords.length);
-      frogY = random.nextInt(fieldCoords[0].length);
-    } while (fieldCoords[frogX][frogY].getName() != null);
-
-    return new Coords(frogX, frogY);
-  }
-
-  private boolean isCollision(Coords cellCoords) {
-    int cellX = cellCoords.getCoordX();
-    int cellY = cellCoords.getCoordY();
-
-    return cellX > fieldCoords.length - 1 || cellX < 0
-        || cellY > fieldCoords[cellX].length - 1 || cellY < 0;
+  public synchronized void deleteObjectByCoords(Coords coords) {
+    if (!isCollision(coords)) {
+      objects[coords.getCoordX()][coords.getCoordY()] = null;
+    }
   }
 }

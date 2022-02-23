@@ -1,23 +1,20 @@
-package ru.derendiaev.model.object;
+package ru.derendiaev.model;
 
 import lombok.Getter;
-import lombok.Setter;
 
 /**
- * Created by DDerendiaev on 02-Feb-22.
+ * Created by DDerendiaev on 23-Feb-22.
  */
 public class Coords {
 
   @Getter
-  @Setter
-  private int coordX;
+  private final int coordX;
 
   @Getter
-  @Setter
-  private int coordY;
+  private final int coordY;
 
   /**
-   * Cell constructor.
+   * Coords constructor.
    */
   public Coords(int coordX, int coordY) {
     this.coordX = coordX;

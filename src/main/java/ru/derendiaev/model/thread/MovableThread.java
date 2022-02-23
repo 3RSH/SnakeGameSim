@@ -2,20 +2,21 @@ package ru.derendiaev.model.thread;
 
 import static java.lang.Thread.sleep;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import ru.derendiaev.model.Coords;
 import ru.derendiaev.model.Field;
 import ru.derendiaev.model.ModelManager;
-import ru.derendiaev.model.object.Coords;
 import ru.derendiaev.model.object.Direction;
-import ru.derendiaev.model.object.MovableObject;
+import ru.derendiaev.model.object.MovableCellObject;
 
 /**
  * Created by DDerendiaev on 03-Feb-22.
  */
 public abstract class MovableThread implements Runnable {
 
-  protected final MovableObject fieldObject;
+  protected final List<MovableCellObject> objects;
   protected final Field field;
   protected final ModelManager manager;
 
@@ -26,8 +27,8 @@ public abstract class MovableThread implements Runnable {
   /**
    * Thread constructor.
    */
-  public MovableThread(MovableObject fieldObject, Field field, ModelManager manager) {
-    this.fieldObject = fieldObject;
+  public MovableThread(List<MovableCellObject> objects, Field field, ModelManager manager) {
+    this.objects = objects;
     this.field = field;
     this.manager = manager;
     isLive = true;
@@ -36,25 +37,25 @@ public abstract class MovableThread implements Runnable {
   @Override
   public void run() {
     while (isLive) {
-      move(getNextHeadCoords());
+      move();
 
       try {
-        sleep(1000 / fieldObject.getSpeed());
+        sleep(1000 / objects.get(0).getSpeed());
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
     }
   }
 
-  abstract void move(Coords nextHeadCoords);
+  abstract void move();
 
-  protected Coords getNextHeadCoords() {
-    Coords headCoords = fieldObject.getAllCoords().get(0);
+  protected Coords getNextHeadCoords(MovableCellObject object) {
+    Coords headCoords = object.getCoords();
 
     int newHeadX = headCoords.getCoordX();
     int newHeadY = headCoords.getCoordY();
 
-    Direction direction = fieldObject.getDirection();
+    Direction direction = object.getDirection();
 
     if (direction == Direction.RIGHT) {
       newHeadX++;
