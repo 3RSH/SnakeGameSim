@@ -21,17 +21,19 @@ public class FrogThread extends MovableThread {
 
   @Override
   void move() {
-    MovableCellObject frogObject = objects.get(0);
-    Coords currentHeadCoords = frogObject.getCoords();
-    Coords nextHeadCoords = getNextHeadCoords(frogObject);
+    if (objects.size() > 0) {
+      MovableCellObject frogObject = objects.get(0);
+      Coords currentHeadCoords = frogObject.getCoords();
+      Coords nextHeadCoords = getNextHeadCoords();
 
-    if (canObjectMove(nextHeadCoords)) {
-      frogObject.setCoords(nextHeadCoords);
-      field.setObjectByCoords(frogObject, nextHeadCoords);
-      field.deleteObjectByCoords(currentHeadCoords);
+      if (canObjectMove(nextHeadCoords)) {
+        frogObject.setCoords(nextHeadCoords);
+        field.setObjectByCoords(frogObject, nextHeadCoords);
+        field.deleteObjectByCoords(currentHeadCoords);
+      }
+
+      changeDirection();
     }
-
-    changeDirection();
   }
 
   private boolean canObjectMove(Coords nextHeadCoords) {

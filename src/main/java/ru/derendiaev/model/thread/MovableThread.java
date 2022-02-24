@@ -49,24 +49,29 @@ public abstract class MovableThread implements Runnable {
 
   abstract void move();
 
-  protected Coords getNextHeadCoords(MovableCellObject object) {
-    Coords headCoords = object.getCoords();
+  protected Coords getNextHeadCoords() {
+    if (objects.size() > 0) {
+      MovableCellObject object = objects.get(objects.size() - 1);
+      Coords headCoords = object.getCoords();
 
-    int newHeadX = headCoords.getCoordX();
-    int newHeadY = headCoords.getCoordY();
+      int newHeadX = headCoords.getCoordX();
+      int newHeadY = headCoords.getCoordY();
 
-    Direction direction = object.getDirection();
+      Direction direction = object.getDirection();
 
-    if (direction == Direction.RIGHT) {
-      newHeadX++;
-    } else if (direction == Direction.LEFT) {
-      newHeadX++;
-    } else if (direction == Direction.DOWN) {
-      newHeadY++;
-    } else if (direction == Direction.UP) {
-      newHeadY--;
+      if (direction == Direction.RIGHT) {
+        newHeadX++;
+      } else if (direction == Direction.LEFT) {
+        newHeadX++;
+      } else if (direction == Direction.DOWN) {
+        newHeadY++;
+      } else if (direction == Direction.UP) {
+        newHeadY--;
+      }
+
+      return new Coords(newHeadX, newHeadY);
     }
 
-    return new Coords(newHeadX, newHeadY);
+    return new Coords(-1, -1);
   }
 }

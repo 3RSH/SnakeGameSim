@@ -22,19 +22,21 @@ public class SnakeThread extends MovableThread {
 
   @Override
   void move() {
-    Coords nextHeadCoords = getNextHeadCoords(objects.get(objects.size() - 1));
+    if (objects.size() > 0) {
+      Coords nextHeadCoords = getNextHeadCoords();
 
-    if (canObjectMove(nextHeadCoords)) {
-      if (canObjectGrow(nextHeadCoords)) {
-        CellObject nextCoorsdObject = field.getObjectByCoords(nextHeadCoords);
-        manager.snakeEatFrog(nextCoorsdObject, this);
-        objects.add((MovableCellObject) nextCoorsdObject);
-        updateCellObjectsTypes();
+      if (canObjectMove(nextHeadCoords)) {
+        if (canObjectGrow(nextHeadCoords)) {
+          CellObject nextCoordsObject = field.getObjectByCoords(nextHeadCoords);
+          manager.snakeEatFrog(nextCoordsObject, this);
+          objects.add((MovableCellObject) nextCoordsObject);
+          updateCellObjectsTypes();
+        } else {
+          changeCoords(nextHeadCoords);
+        }
       } else {
-        changeCoords(nextHeadCoords);
+        manager.stopModel();
       }
-    } else {
-      manager.stopModel();
     }
   }
 
