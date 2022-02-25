@@ -13,30 +13,36 @@ import ru.derendiaev.model.object.ObjectType;
  */
 public class SnakeThread extends MovableThread {
 
+  private final List<MovableCellObject> snakeObjects;
+
   /**
    * SnakeThread constructor.
    */
-  public SnakeThread(List<MovableCellObject> objects, Field field, ModelManager manager) {
-    super(objects, field, manager);
+  public SnakeThread(
+      MovableCellObject snakeHeadObjects,
+      Field field, ModelManager manager,
+      List<MovableCellObject> snakeObjects) {
+
+    super(snakeHeadObjects, field, manager);
+    this.snakeObjects = snakeObjects;
   }
 
   @Override
   void move() {
-    if (objects.size() > 0) {
-      Coords nextHeadCoords = getNextHeadCoords();
+    Coords nextHeadCoords = getNextHeadCoords();
 
-      if (canObjectMove(nextHeadCoords)) {
-        if (canObjectGrow(nextHeadCoords)) {
-          CellObject nextCoordsObject = field.getObjectByCoords(nextHeadCoords);
-          manager.snakeEatFrog(nextCoordsObject, this);
-          objects.add((MovableCellObject) nextCoordsObject);
-          updateCellObjectsTypes();
-        } else {
-          changeCoords(nextHeadCoords);
-        }
+    if (canObjectMove(nextHeadCoords)) {
+      if (canObjectGrow(nextHeadCoords)) {
+        CellObject nextCoordsObject = field.getObjectByCoords(nextHeadCoords);
+        manager.snakeEatFrog(nextCoordsObject, this);
+        snakeObjects.add((MovableCellObject) nextCoordsObject);
+        headObject = (MovableCellObject) nextCoordsObject;
+        updateCellObjectsTypes();
       } else {
-        manager.stopModel();
+        changeCoords(nextHeadCoords);
       }
+    } else {
+      manager.stopModel();
     }
   }
 
@@ -55,30 +61,30 @@ public class SnakeThread extends MovableThread {
   }
 
   private void updateCellObjectsTypes() {
-    for (int i = 0; i < objects.size(); i++) {
+    for (int i = 0; i < snakeObjects.size(); i++) {
       if (i == 0) {
-        objects.get(i).setType(ObjectType.TAIL);
-      } else if (i == objects.size() - 1) {
-        objects.get(i).setType(ObjectType.HEAD);
+        snakeObjects.get(i).setType(ObjectType.TAIL);
+      } else if (i == snakeObjects.size() - 1) {
+        snakeObjects.get(i).setType(ObjectType.HEAD);
       } else {
-        objects.get(i).setType(ObjectType.BODY);
+        snakeObjects.get(i).setType(ObjectType.BODY);
       }
     }
   }
 
   private void changeCoords(Coords nextHeadCoords) {
-    for (int i = 0; i < objects.size(); i++) {
-      CellObject object = objects.get(i);
+    for (int i = 0; i < snakeObjects.size(); i++) {
+      CellObject object = snakeObjects.get(i);
 
       if (i == 0) {
         field.deleteObjectByCoords(object.getCoords());
-        object.setCoords(objects.get(i + 1).getCoords());
+        object.setCoords(snakeObjects.get(i + 1).getCoords());
         field.setObjectByCoords(object, object.getCoords());
-      } else if (i == objects.size() - 1) {
+      } else if (i == snakeObjects.size() - 1) {
         object.setCoords(nextHeadCoords);
         field.setObjectByCoords(object, nextHeadCoords);
       } else {
-        object.setCoords(objects.get(i + 1).getCoords());
+        object.setCoords(snakeObjects.get(i + 1).getCoords());
         field.setObjectByCoords(object, object.getCoords());
       }
     }

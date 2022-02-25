@@ -2,7 +2,6 @@ package ru.derendiaev.model.thread;
 
 import static java.lang.Thread.sleep;
 
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import ru.derendiaev.model.Coords;
@@ -16,9 +15,10 @@ import ru.derendiaev.model.object.MovableCellObject;
  */
 public abstract class MovableThread implements Runnable {
 
-  protected final List<MovableCellObject> objects;
   protected final Field field;
   protected final ModelManager manager;
+
+  protected MovableCellObject headObject;
 
   @Getter
   @Setter
@@ -27,8 +27,8 @@ public abstract class MovableThread implements Runnable {
   /**
    * Thread constructor.
    */
-  public MovableThread(List<MovableCellObject> objects, Field field, ModelManager manager) {
-    this.objects = objects;
+  public MovableThread(MovableCellObject headObject, Field field, ModelManager manager) {
+    this.headObject = headObject;
     this.field = field;
     this.manager = manager;
     isLive = true;
@@ -40,7 +40,7 @@ public abstract class MovableThread implements Runnable {
       move();
 
       try {
-        sleep(1000 / objects.get(0).getSpeed());
+        sleep(1000 / headObject.getSpeed());
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
@@ -50,28 +50,23 @@ public abstract class MovableThread implements Runnable {
   abstract void move();
 
   protected Coords getNextHeadCoords() {
-    if (objects.size() > 0) {
-      MovableCellObject object = objects.get(objects.size() - 1);
-      Coords headCoords = object.getCoords();
+    Coords headCoords = headObject.getCoords();
 
-      int newHeadX = headCoords.getCoordX();
-      int newHeadY = headCoords.getCoordY();
+    int newHeadX = headCoords.getCoordX();
+    int newHeadY = headCoords.getCoordY();
 
-      Direction direction = object.getDirection();
+    Direction direction = headObject.getDirection();
 
-      if (direction == Direction.RIGHT) {
-        newHeadX++;
-      } else if (direction == Direction.LEFT) {
-        newHeadX++;
-      } else if (direction == Direction.DOWN) {
-        newHeadY++;
-      } else if (direction == Direction.UP) {
-        newHeadY--;
-      }
-
-      return new Coords(newHeadX, newHeadY);
+    if (direction == Direction.RIGHT) {
+      newHeadX++;
+    } else if (direction == Direction.LEFT) {
+      newHeadX++;
+    } else if (direction == Direction.DOWN) {
+      newHeadY++;
+    } else if (direction == Direction.UP) {
+      newHeadY--;
     }
 
-    return new Coords(-1, -1);
+    return new Coords(newHeadX, newHeadY);
   }
 }

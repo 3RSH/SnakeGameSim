@@ -1,6 +1,5 @@
 package ru.derendiaev.model.thread;
 
-import java.util.List;
 import ru.derendiaev.model.Coords;
 import ru.derendiaev.model.Field;
 import ru.derendiaev.model.ModelManager;
@@ -15,25 +14,22 @@ public class FrogThread extends MovableThread {
   /**
    * FrogThread constructor.
    */
-  public FrogThread(List<MovableCellObject> objects, Field field, ModelManager manager) {
-    super(objects, field, manager);
+  public FrogThread(MovableCellObject frogObject, Field field, ModelManager manager) {
+    super(frogObject, field, manager);
   }
 
   @Override
   void move() {
-    if (objects.size() > 0) {
-      MovableCellObject frogObject = objects.get(0);
-      Coords currentHeadCoords = frogObject.getCoords();
-      Coords nextHeadCoords = getNextHeadCoords();
+    Coords currentHeadCoords = headObject.getCoords();
+    Coords nextHeadCoords = getNextHeadCoords();
 
-      if (canObjectMove(nextHeadCoords)) {
-        frogObject.setCoords(nextHeadCoords);
-        field.setObjectByCoords(frogObject, nextHeadCoords);
-        field.deleteObjectByCoords(currentHeadCoords);
-      }
-
-      changeDirection();
+    if (canObjectMove(nextHeadCoords)) {
+      headObject.setCoords(nextHeadCoords);
+      field.setObjectByCoords(headObject, nextHeadCoords);
+      field.deleteObjectByCoords(currentHeadCoords);
     }
+
+    changeDirection();
   }
 
   private boolean canObjectMove(Coords nextHeadCoords) {
@@ -45,6 +41,6 @@ public class FrogThread extends MovableThread {
   }
 
   private void changeDirection() {
-    objects.get(0).setDirection(RandomDirectionGenerator.getRandomObjectDirection());
+    headObject.setDirection(RandomDirectionGenerator.getRandomObjectDirection());
   }
 }

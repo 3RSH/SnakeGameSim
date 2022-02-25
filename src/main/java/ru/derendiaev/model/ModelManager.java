@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -70,6 +69,7 @@ public class ModelManager {
   public void snakeEatFrog(CellObject frogObject, MovableThread snakeThread) {
     threadsByObjects.get(frogObject).setLive(false);
     threadsByObjects.put(frogObject, snakeThread);
+    respawnFrog();
   }
 
   private void initField() {
@@ -78,7 +78,7 @@ public class ModelManager {
 
   private void initSnake() {
     int snakeSize = Config.getSnakeStartSize();
-    List<MovableCellObject> objects = new ArrayList<>();
+    List<MovableCellObject> snakeObjects = new ArrayList<>();
 
     for (int i = 0; i < snakeSize; i++) {
       MovableCellObject object;
@@ -86,7 +86,7 @@ public class ModelManager {
       if (i == 0) {
         object =
             new MovableCellObject(ObjectType.TAIL, Direction.RIGHT, Config.getSnakeStartSpeed());
-      } else if (i == objects.size() - 1) {
+      } else if (i == snakeObjects.size() - 1) {
         object =
             new MovableCellObject(ObjectType.HEAD, Direction.RIGHT, Config.getSnakeStartSpeed());
       } else {
@@ -97,11 +97,14 @@ public class ModelManager {
       Coords coords = new Coords(i, 0);
       object.setCoords(coords);
       field.setObjectByCoords(object, coords);
-      objects.add(object);
+      snakeObjects.add(object);
     }
 
-    SnakeThread snakeThread = new SnakeThread(objects, field, this);
-    objects.forEach(object -> threadsByObjects.put(object, snakeThread));
+    int headIndex = snakeObjects.size() - 1;
+    SnakeThread snakeThread =
+        new SnakeThread(snakeObjects.get(headIndex), field, this, snakeObjects);
+
+    snakeObjects.forEach(object -> threadsByObjects.put(object, snakeThread));
     startModelThreads.add(snakeThread);
   }
 
@@ -119,11 +122,9 @@ public class ModelManager {
       objects.add(object);
     }
 
-    objects.forEach(object -> {
-      List<MovableCellObject> objectInList = new ArrayList<>(1);
-      objectInList.add(object);
-      FrogThread thread = new FrogThread(objectInList, field, this);
-      threadsByObjects.put(object, thread);
+    objects.forEach(frogObject -> {
+      FrogThread thread = new FrogThread(frogObject, field, this);
+      threadsByObjects.put(frogObject, thread);
       startModelThreads.add(thread);
     });
   }
@@ -151,5 +152,17 @@ public class ModelManager {
     }
 
     return null;
+  }
+
+  private void respawnFrog() {
+    MovableCellObject frogObject = createFrog();
+
+    if (frogObject != null) {
+      field.setObjectByCoords(frogObject, frogObject.getCoords());
+      FrogThread frogThread = new FrogThread(frogObject, field, this);
+      threadsByObjects.put(frogObject, frogThread);
+      Thread thread = new Thread(frogThread);
+      thread.start();
+    }
   }
 }
