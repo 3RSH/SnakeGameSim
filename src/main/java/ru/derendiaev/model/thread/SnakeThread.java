@@ -1,7 +1,7 @@
 package ru.derendiaev.model.thread;
 
 import java.util.List;
-import ru.derendiaev.model.CanMoveException;
+import ru.derendiaev.model.CanNotMoveException;
 import ru.derendiaev.model.Coords;
 import ru.derendiaev.model.Field;
 import ru.derendiaev.model.ModelManager;
@@ -42,7 +42,7 @@ public class SnakeThread extends MovableThread<SnakeObject> {
   }
 
   @Override
-  public boolean canObjectMove() throws CanMoveException {
+  public boolean canObjectMove() throws CanNotMoveException {
     Coords nextHeadCoords = getNextHeadCoords();
     CellObject nextCellObject = field.getCellObjectByCoords(nextHeadCoords);
 
@@ -50,7 +50,7 @@ public class SnakeThread extends MovableThread<SnakeObject> {
         || nextCellObject == null
         || nextCellObject.getType() == CellObjectType.FROG) {
 
-      throw new CanMoveException();
+      throw new CanNotMoveException();
     }
 
     return true;

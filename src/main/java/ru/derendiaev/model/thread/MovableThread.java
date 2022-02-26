@@ -4,7 +4,7 @@ import static java.lang.Thread.sleep;
 
 import lombok.Getter;
 import lombok.Setter;
-import ru.derendiaev.model.CanMoveException;
+import ru.derendiaev.model.CanNotMoveException;
 import ru.derendiaev.model.Coords;
 import ru.derendiaev.model.Field;
 import ru.derendiaev.model.ModelManager;
@@ -41,7 +41,7 @@ public abstract class MovableThread<T extends MovableFieldObject> implements Run
         if (canObjectMove()) {
           move();
         }
-      } catch (CanMoveException e) {
+      } catch (CanNotMoveException e) {
         manager.stopModel();
       }
 
@@ -55,7 +55,7 @@ public abstract class MovableThread<T extends MovableFieldObject> implements Run
 
   public abstract void move();
 
-  public abstract boolean canObjectMove() throws CanMoveException;
+  public abstract boolean canObjectMove() throws CanNotMoveException;
 
   protected Coords getNextHeadCoords() {
     Coords headCoords = fieldObject.getHeadCellObject().getCoords();
