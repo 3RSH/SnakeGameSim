@@ -15,13 +15,5 @@ public class CellObject {
 
   @Getter
   @Setter
-  private ObjectType type;
-
-
-  /**
-   * CellObject constructor.
-   */
-  public CellObject(ObjectType type) {
-    this.type = type;
-  }
+  private CellObjectType type;
 }

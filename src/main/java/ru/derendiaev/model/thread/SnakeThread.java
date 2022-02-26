@@ -1,92 +1,62 @@
 package ru.derendiaev.model.thread;
 
 import java.util.List;
+import ru.derendiaev.model.CanMoveException;
 import ru.derendiaev.model.Coords;
 import ru.derendiaev.model.Field;
 import ru.derendiaev.model.ModelManager;
 import ru.derendiaev.model.object.CellObject;
-import ru.derendiaev.model.object.MovableCellObject;
-import ru.derendiaev.model.object.ObjectType;
+import ru.derendiaev.model.object.CellObjectType;
+import ru.derendiaev.model.object.SnakeObject;
 
 /**
  * Created by DDerendiaev on 05-Feb-22.
  */
-public class SnakeThread extends MovableThread {
-
-  private final List<MovableCellObject> snakeObjects;
+public class SnakeThread extends MovableThread<SnakeObject> {
 
   /**
    * SnakeThread constructor.
    */
-  public SnakeThread(
-      MovableCellObject snakeHeadObjects,
-      Field field, ModelManager manager,
-      List<MovableCellObject> snakeObjects) {
-
-    super(snakeHeadObjects, field, manager);
-    this.snakeObjects = snakeObjects;
+  public SnakeThread(SnakeObject fieldObject, Field field, ModelManager manager) {
+    super(fieldObject, field, manager);
   }
 
   @Override
-  void move() {
-    Coords nextHeadCoords = getNextHeadCoords();
+  public void move() {
+    Coords nextHeadCoords = getNextHeadCoords(fieldObject.getDirection());
 
-    if (canObjectMove(nextHeadCoords)) {
-      if (canObjectGrow(nextHeadCoords)) {
-        CellObject nextCoordsObject = field.getObjectByCoords(nextHeadCoords);
-        manager.snakeEatFrog(nextCoordsObject, this);
-        snakeObjects.add((MovableCellObject) nextCoordsObject);
-        headObject = (MovableCellObject) nextCoordsObject;
-        updateCellObjectsTypes();
-      } else {
-        changeCoords(nextHeadCoords);
-      }
+    if (canObjectGrow(nextHeadCoords)) {
+      CellObject frogCellObject = field.getCellObjectByCoords(nextHeadCoords);
+      manager.snakeEatFrog(frogCellObject, this);
+      fieldObject.growSnake(field.getCellObjectByCoords(nextHeadCoords));
+
     } else {
-      manager.stopModel();
+      List<CellObject> snakeCellObjects = fieldObject.getCellObjects();
+      Coords currentTailCoords = snakeCellObjects.get(0).getCoords();
+
+      fieldObject.setNewCoords(nextHeadCoords);
+      snakeCellObjects
+          .forEach(cellObject -> field.setCellObjectByCoords(cellObject, cellObject.getCoords()));
+      field.deleteCellObjectByCoords(currentTailCoords);
     }
   }
 
-  private boolean canObjectMove(Coords nextHeadCoords) {
-    if (field.isCollision(nextHeadCoords)) {
-      return false;
+  @Override
+  public boolean canObjectMove() throws CanMoveException {
+    Coords nextHeadCoords = getNextHeadCoords(fieldObject.getDirection());
+    CellObject nextCellObject = field.getCellObjectByCoords(nextHeadCoords);
+
+    if (field.isCollision(nextHeadCoords)
+        || nextCellObject == null
+        || nextCellObject.getType() == CellObjectType.FROG) {
+
+      throw new CanMoveException();
     }
 
-    CellObject nextCellObject = field.getObjectByCoords(nextHeadCoords);
-
-    return nextCellObject == null || nextCellObject.getType() == ObjectType.FROG;
+    return true;
   }
 
   private boolean canObjectGrow(Coords nextHeadCoords) {
-    return field.getObjectByCoords(nextHeadCoords).getType() == ObjectType.FROG;
-  }
-
-  private void updateCellObjectsTypes() {
-    for (int i = 0; i < snakeObjects.size(); i++) {
-      if (i == 0) {
-        snakeObjects.get(i).setType(ObjectType.TAIL);
-      } else if (i == snakeObjects.size() - 1) {
-        snakeObjects.get(i).setType(ObjectType.HEAD);
-      } else {
-        snakeObjects.get(i).setType(ObjectType.BODY);
-      }
-    }
-  }
-
-  private void changeCoords(Coords nextHeadCoords) {
-    for (int i = 0; i < snakeObjects.size(); i++) {
-      CellObject object = snakeObjects.get(i);
-
-      if (i == 0) {
-        field.deleteObjectByCoords(object.getCoords());
-        object.setCoords(snakeObjects.get(i + 1).getCoords());
-        field.setObjectByCoords(object, object.getCoords());
-      } else if (i == snakeObjects.size() - 1) {
-        object.setCoords(nextHeadCoords);
-        field.setObjectByCoords(object, nextHeadCoords);
-      } else {
-        object.setCoords(snakeObjects.get(i + 1).getCoords());
-        field.setObjectByCoords(object, object.getCoords());
-      }
-    }
+    return field.getCellObjectByCoords(nextHeadCoords).getType() == CellObjectType.FROG;
   }
 }

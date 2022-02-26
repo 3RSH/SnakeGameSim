@@ -4,43 +4,47 @@ import ru.derendiaev.model.Coords;
 import ru.derendiaev.model.Field;
 import ru.derendiaev.model.ModelManager;
 import ru.derendiaev.model.RandomDirectionGenerator;
-import ru.derendiaev.model.object.MovableCellObject;
+import ru.derendiaev.model.object.CellObject;
+import ru.derendiaev.model.object.FrogObject;
 
 /**
  * Created by DDerendiaev on 05-Feb-22.
  */
-public class FrogThread extends MovableThread {
+public class FrogThread extends MovableThread<FrogObject> {
 
   /**
    * FrogThread constructor.
    */
-  public FrogThread(MovableCellObject frogObject, Field field, ModelManager manager) {
-    super(frogObject, field, manager);
+  public FrogThread(FrogObject fieldObject, Field field, ModelManager manager) {
+    super(fieldObject, field, manager);
   }
 
   @Override
-  void move() {
-    Coords currentHeadCoords = headObject.getCoords();
-    Coords nextHeadCoords = getNextHeadCoords();
+  public void move() {
+    Coords currentCoords = fieldObject.getHeadCellObject().getCoords();
+    Coords nextCoords = getNextHeadCoords(fieldObject.getDirection());
 
-    if (canObjectMove(nextHeadCoords)) {
-      headObject.setCoords(nextHeadCoords);
-      field.setObjectByCoords(headObject, nextHeadCoords);
-      field.deleteObjectByCoords(currentHeadCoords);
-    }
+    fieldObject.setNewCoords(getNextHeadCoords(fieldObject.getDirection()));
+
+    CellObject cellObject = fieldObject.getHeadCellObject();
+    field.setCellObjectByCoords(cellObject, nextCoords);
+    field.deleteCellObjectByCoords(currentCoords);
 
     changeDirection();
   }
 
-  private boolean canObjectMove(Coords nextHeadCoords) {
+  @Override
+  public boolean canObjectMove() {
+    Coords nextHeadCoords = getNextHeadCoords(fieldObject.getDirection());
+
     if (field.isCollision(nextHeadCoords)) {
       return false;
     }
 
-    return field.getObjectByCoords(nextHeadCoords) == null;
+    return field.getCellObjectByCoords(nextHeadCoords) == null;
   }
 
   private void changeDirection() {
-    headObject.setDirection(RandomDirectionGenerator.getRandomObjectDirection());
+    fieldObject.setDirection(RandomDirectionGenerator.getRandomObjectDirection());
   }
 }

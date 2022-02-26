@@ -27,7 +27,7 @@ public class Field {
   /**
    * Get FieldObject by coordinates.
    */
-  public synchronized CellObject getObjectByCoords(Coords coords) {
+  public synchronized CellObject getCellObjectByCoords(Coords coords) {
     if (isCollision(coords)) {
       return null;
     }
@@ -38,7 +38,7 @@ public class Field {
   /**
    * Set FieldObject by coordinates.
    */
-  public synchronized void setObjectByCoords(CellObject object, Coords coords) {
+  public synchronized void setCellObjectByCoords(CellObject object, Coords coords) {
     if (!isCollision(coords)) {
       object.setCoords(coords);
       objects[coords.getCoordX()][coords.getCoordY()] = object;
@@ -48,7 +48,7 @@ public class Field {
   /**
    * Delete FieldObject by coordinates.
    */
-  public synchronized void deleteObjectByCoords(Coords coords) {
+  public synchronized void deleteCellObjectByCoords(Coords coords) {
     if (!isCollision(coords)) {
       objects[coords.getCoordX()][coords.getCoordY()] = null;
     }

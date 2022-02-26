@@ -4,21 +4,21 @@ import static java.lang.Thread.sleep;
 
 import lombok.Getter;
 import lombok.Setter;
+import ru.derendiaev.model.CanMoveException;
 import ru.derendiaev.model.Coords;
 import ru.derendiaev.model.Field;
 import ru.derendiaev.model.ModelManager;
 import ru.derendiaev.model.object.Direction;
-import ru.derendiaev.model.object.MovableCellObject;
+import ru.derendiaev.model.object.MovableFieldObject;
 
 /**
  * Created by DDerendiaev on 03-Feb-22.
  */
-public abstract class MovableThread implements Runnable {
+public abstract class MovableThread<T extends MovableFieldObject> implements Runnable {
 
   protected final Field field;
   protected final ModelManager manager;
-
-  protected MovableCellObject headObject;
+  protected final T fieldObject;
 
   @Getter
   @Setter
@@ -27,8 +27,8 @@ public abstract class MovableThread implements Runnable {
   /**
    * Thread constructor.
    */
-  public MovableThread(MovableCellObject headObject, Field field, ModelManager manager) {
-    this.headObject = headObject;
+  public MovableThread(T fieldObject, Field field, ModelManager manager) {
+    this.fieldObject = fieldObject;
     this.field = field;
     this.manager = manager;
     isLive = true;
@@ -37,25 +37,31 @@ public abstract class MovableThread implements Runnable {
   @Override
   public void run() {
     while (isLive) {
-      move();
+      try {
+        if (canObjectMove()) {
+          move();
+        }
+      } catch (CanMoveException e) {
+        manager.stopModel();
+      }
 
       try {
-        sleep(1000 / headObject.getSpeed());
+        sleep(1000 / fieldObject.getSpeed());
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
     }
   }
 
-  abstract void move();
+  public abstract void move();
 
-  protected Coords getNextHeadCoords() {
-    Coords headCoords = headObject.getCoords();
+  public abstract boolean canObjectMove() throws CanMoveException;
+
+  protected Coords getNextHeadCoords(Direction direction) {
+    Coords headCoords = fieldObject.getHeadCellObject().getCoords();
 
     int newHeadX = headCoords.getCoordX();
     int newHeadY = headCoords.getCoordY();
-
-    Direction direction = headObject.getDirection();
 
     if (direction == Direction.RIGHT) {
       newHeadX++;
