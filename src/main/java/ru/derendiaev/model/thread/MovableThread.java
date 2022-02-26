@@ -57,11 +57,12 @@ public abstract class MovableThread<T extends MovableFieldObject> implements Run
 
   public abstract boolean canObjectMove() throws CanMoveException;
 
-  protected Coords getNextHeadCoords(Direction direction) {
+  protected Coords getNextHeadCoords() {
     Coords headCoords = fieldObject.getHeadCellObject().getCoords();
 
     int newHeadX = headCoords.getCoordX();
     int newHeadY = headCoords.getCoordY();
+    Direction direction = fieldObject.getDirection();
 
     if (direction == Direction.RIGHT) {
       newHeadX++;

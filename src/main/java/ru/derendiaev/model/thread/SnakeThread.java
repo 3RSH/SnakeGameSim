@@ -23,7 +23,7 @@ public class SnakeThread extends MovableThread<SnakeObject> {
 
   @Override
   public void move() {
-    Coords nextHeadCoords = getNextHeadCoords(fieldObject.getDirection());
+    Coords nextHeadCoords = getNextHeadCoords();
 
     if (canObjectGrow(nextHeadCoords)) {
       CellObject frogCellObject = field.getCellObjectByCoords(nextHeadCoords);
@@ -43,7 +43,7 @@ public class SnakeThread extends MovableThread<SnakeObject> {
 
   @Override
   public boolean canObjectMove() throws CanMoveException {
-    Coords nextHeadCoords = getNextHeadCoords(fieldObject.getDirection());
+    Coords nextHeadCoords = getNextHeadCoords();
     CellObject nextCellObject = field.getCellObjectByCoords(nextHeadCoords);
 
     if (field.isCollision(nextHeadCoords)

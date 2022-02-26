@@ -22,9 +22,9 @@ public class FrogThread extends MovableThread<FrogObject> {
   @Override
   public void move() {
     Coords currentCoords = fieldObject.getHeadCellObject().getCoords();
-    Coords nextCoords = getNextHeadCoords(fieldObject.getDirection());
+    Coords nextCoords = getNextHeadCoords();
 
-    fieldObject.setNewCoords(getNextHeadCoords(fieldObject.getDirection()));
+    fieldObject.setNewCoords(getNextHeadCoords());
 
     CellObject cellObject = fieldObject.getHeadCellObject();
     field.setCellObjectByCoords(cellObject, nextCoords);
@@ -35,7 +35,7 @@ public class FrogThread extends MovableThread<FrogObject> {
 
   @Override
   public boolean canObjectMove() {
-    Coords nextHeadCoords = getNextHeadCoords(fieldObject.getDirection());
+    Coords nextHeadCoords = getNextHeadCoords();
 
     if (field.isCollision(nextHeadCoords)) {
       return false;
