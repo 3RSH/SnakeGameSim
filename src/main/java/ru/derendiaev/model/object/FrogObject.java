@@ -5,26 +5,26 @@ import ru.derendiaev.model.Coords;
 /**
  * Created by DDerendiaev on 26-Feb-22.
  */
-public class FrogObject extends MovableFieldObject {
+public class FrogObject extends MovableObject {
 
-  private final CellObject cellObject;
+  private final Cell cell;
 
   /**
    * FrogObject constructor.
    */
-  public FrogObject(CellObject cellObject, Direction direction, int speed) {
+  public FrogObject(Cell cell, Direction direction, int speed) {
     super(direction, speed);
-    this.cellObject = cellObject;
-    cellObject.setType(CellObjectType.FROG);
+    this.cell = cell;
+    cell.setType(Type.FROG);
   }
 
   @Override
-  public void setNewCoords(Coords newHeadCoords) {
-    cellObject.setCoords(newHeadCoords);
+  public void setCoords(Coords coords) {
+    cell.setCoords(coords);
   }
 
   @Override
-  public CellObject getHeadCellObject() {
-    return cellObject;
+  public Coords getCoords() {
+    return cell.getCoords();
   }
 }

@@ -1,13 +1,15 @@
 package ru.derendiaev.model.thread;
 
+import java.util.ArrayList;
 import java.util.List;
-import ru.derendiaev.model.CanNotMoveException;
+import java.util.stream.Collectors;
 import ru.derendiaev.model.Coords;
 import ru.derendiaev.model.Field;
 import ru.derendiaev.model.ModelManager;
-import ru.derendiaev.model.object.CellObject;
-import ru.derendiaev.model.object.CellObjectType;
+import ru.derendiaev.model.StopModelException;
+import ru.derendiaev.model.object.Cell;
 import ru.derendiaev.model.object.SnakeObject;
+import ru.derendiaev.model.object.Type;
 
 /**
  * Created by DDerendiaev on 05-Feb-22.
@@ -23,40 +25,60 @@ public class SnakeThread extends MovableThread<SnakeObject> {
 
   @Override
   public void move() {
-    Coords nextHeadCoords = getNextHeadCoords();
+    synchronized (field) {
+      Coords nextCoords = getNextCoords();
 
-    if (canObjectGrow(nextHeadCoords)) {
-      CellObject frogCellObject = field.getCellObjectByCoords(nextHeadCoords);
-      manager.snakeEatFrog(frogCellObject, this);
-      fieldObject.growSnake(field.getCellObjectByCoords(nextHeadCoords));
+      if (canGrow(nextCoords)) {
+        Cell frogCell = field.getCellObjectByCoords(nextCoords);
 
-    } else {
-      List<CellObject> snakeCellObjects = fieldObject.getCellObjects();
-      Coords currentTailCoords = snakeCellObjects.get(0).getCoords();
+        manager.killFrog(frogCell, object);
+        object.growSnake(frogCell);
+        manager.respawnFrog();
 
-      fieldObject.setNewCoords(nextHeadCoords);
-      snakeCellObjects
-          .forEach(cellObject -> field.setCellObjectByCoords(cellObject, cellObject.getCoords()));
-      field.deleteCellObjectByCoords(currentTailCoords);
+      } else {
+        List<Cell> snakeCells = getSnakeCells();
+        field.deleteCellObjectByCoords(object.getTailCoords());
+        object.setCoords(nextCoords);
+        snakeCells
+            .forEach(cellObject -> field.setCellObjectByCoords(cellObject, cellObject.getCoords()));
+      }
     }
   }
 
   @Override
-  public boolean canObjectMove() throws CanNotMoveException {
-    Coords nextHeadCoords = getNextHeadCoords();
-    CellObject nextCellObject = field.getCellObjectByCoords(nextHeadCoords);
+  public boolean canMove() throws StopModelException {
+    Coords nextHeadCoords = getNextCoords();
+    Cell nextCell = field.getCellObjectByCoords(nextHeadCoords);
 
     if (field.isCollision(nextHeadCoords)
-        || nextCellObject == null
-        || nextCellObject.getType() == CellObjectType.FROG) {
+        || nextCell == null
+        || nextCell.getType() == Type.FROG) {
 
-      throw new CanNotMoveException();
+      throw new StopModelException();
     }
 
     return true;
   }
 
-  private boolean canObjectGrow(Coords nextHeadCoords) {
-    return field.getCellObjectByCoords(nextHeadCoords).getType() == CellObjectType.FROG;
+  private boolean canGrow(Coords nextHeadCoords) {
+    return field.getCellObjectByCoords(nextHeadCoords).getType() == Type.FROG;
+  }
+
+  private List<Cell> getSnakeCells() {
+    Coords headCoords = object.getCoords();
+    List<Coords> bodyCoords = object.getBodyCoords();
+    Coords tailCoords = object.getTailCoords();
+
+    List<Cell> snakeCells = new ArrayList<>();
+
+    snakeCells.add(field.getCellObjectByCoords(tailCoords));
+    snakeCells.addAll(
+        bodyCoords.stream()
+            .map(field::getCellObjectByCoords)
+            .collect(Collectors.toList())
+    );
+    snakeCells.add(field.getCellObjectByCoords(headCoords));
+
+    return snakeCells;
   }
 }

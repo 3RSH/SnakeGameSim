@@ -4,21 +4,21 @@ import static java.lang.Thread.sleep;
 
 import lombok.Getter;
 import lombok.Setter;
-import ru.derendiaev.model.CanNotMoveException;
 import ru.derendiaev.model.Coords;
 import ru.derendiaev.model.Field;
 import ru.derendiaev.model.ModelManager;
+import ru.derendiaev.model.StopModelException;
 import ru.derendiaev.model.object.Direction;
-import ru.derendiaev.model.object.MovableFieldObject;
+import ru.derendiaev.model.object.MovableObject;
 
 /**
  * Created by DDerendiaev on 03-Feb-22.
  */
-public abstract class MovableThread<T extends MovableFieldObject> implements Runnable {
+public abstract class MovableThread<T extends MovableObject> implements Runnable {
 
   protected final Field field;
   protected final ModelManager manager;
-  protected final T fieldObject;
+  protected final T object;
 
   @Getter
   @Setter
@@ -27,8 +27,8 @@ public abstract class MovableThread<T extends MovableFieldObject> implements Run
   /**
    * Thread constructor.
    */
-  public MovableThread(T fieldObject, Field field, ModelManager manager) {
-    this.fieldObject = fieldObject;
+  public MovableThread(T object, Field field, ModelManager manager) {
+    this.object = object;
     this.field = field;
     this.manager = manager;
     isLive = true;
@@ -38,15 +38,15 @@ public abstract class MovableThread<T extends MovableFieldObject> implements Run
   public void run() {
     while (isLive) {
       try {
-        if (canObjectMove()) {
+        if (canMove()) {
           move();
         }
-      } catch (CanNotMoveException e) {
+      } catch (StopModelException e) {
         manager.stopModel();
       }
 
       try {
-        sleep(1000 / fieldObject.getSpeed());
+        sleep(1000 / object.getSpeed());
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
@@ -55,14 +55,14 @@ public abstract class MovableThread<T extends MovableFieldObject> implements Run
 
   public abstract void move();
 
-  public abstract boolean canObjectMove() throws CanNotMoveException;
+  public abstract boolean canMove() throws StopModelException;
 
-  protected Coords getNextHeadCoords() {
-    Coords headCoords = fieldObject.getHeadCellObject().getCoords();
+  protected Coords getNextCoords() {
+    Coords headCoords = object.getCoords();
 
     int newHeadX = headCoords.getCoordX();
     int newHeadY = headCoords.getCoordY();
-    Direction direction = fieldObject.getDirection();
+    Direction direction = object.getDirection();
 
     if (direction == Direction.RIGHT) {
       newHeadX++;

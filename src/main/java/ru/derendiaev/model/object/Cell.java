@@ -7,13 +7,10 @@ import ru.derendiaev.model.Coords;
 /**
  * Created by DDerendiaev on 05-Feb-22.
  */
-public class CellObject {
+@Getter
+@Setter
+public class Cell {
 
-  @Getter
-  @Setter
   private Coords coords;
-
-  @Getter
-  @Setter
-  private CellObjectType type;
+  private Type type;
 }

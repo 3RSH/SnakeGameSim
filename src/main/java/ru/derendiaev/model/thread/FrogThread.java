@@ -4,7 +4,7 @@ import ru.derendiaev.model.Coords;
 import ru.derendiaev.model.Field;
 import ru.derendiaev.model.ModelManager;
 import ru.derendiaev.model.RandomDirectionGenerator;
-import ru.derendiaev.model.object.CellObject;
+import ru.derendiaev.model.object.Cell;
 import ru.derendiaev.model.object.FrogObject;
 
 /**
@@ -21,21 +21,22 @@ public class FrogThread extends MovableThread<FrogObject> {
 
   @Override
   public void move() {
-    Coords currentCoords = fieldObject.getHeadCellObject().getCoords();
-    Coords nextCoords = getNextHeadCoords();
+    synchronized (field) {
+      Coords coords = object.getCoords();
+      Coords nextCoords = getNextCoords();
+      Cell frogCell = field.getCellObjectByCoords(coords);
+      field.deleteCellObjectByCoords(coords);
 
-    fieldObject.setNewCoords(getNextHeadCoords());
-
-    CellObject cellObject = fieldObject.getHeadCellObject();
-    field.setCellObjectByCoords(cellObject, nextCoords);
-    field.deleteCellObjectByCoords(currentCoords);
+      object.setCoords(nextCoords);
+      field.setCellObjectByCoords(frogCell, nextCoords);
+    }
 
     changeDirection();
   }
 
   @Override
-  public boolean canObjectMove() {
-    Coords nextHeadCoords = getNextHeadCoords();
+  public boolean canMove() {
+    Coords nextHeadCoords = getNextCoords();
 
     if (field.isCollision(nextHeadCoords)) {
       return false;
@@ -45,6 +46,6 @@ public class FrogThread extends MovableThread<FrogObject> {
   }
 
   private void changeDirection() {
-    fieldObject.setDirection(RandomDirectionGenerator.getRandomObjectDirection());
+    object.setDirection(RandomDirectionGenerator.getRandomObjectDirection());
   }
 }

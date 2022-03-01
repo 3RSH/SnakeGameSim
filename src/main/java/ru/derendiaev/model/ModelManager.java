@@ -10,10 +10,11 @@ import java.util.concurrent.Executors;
 import lombok.Getter;
 import lombok.Setter;
 import ru.derendiaev.Config;
-import ru.derendiaev.model.object.CellObject;
-import ru.derendiaev.model.object.CellObjectType;
+import ru.derendiaev.model.object.Cell;
+import ru.derendiaev.model.object.Type;
 import ru.derendiaev.model.object.Direction;
 import ru.derendiaev.model.object.FrogObject;
+import ru.derendiaev.model.object.MovableObject;
 import ru.derendiaev.model.object.SnakeObject;
 import ru.derendiaev.model.thread.FrogThread;
 import ru.derendiaev.model.thread.MovableThread;
@@ -25,8 +26,8 @@ import ru.derendiaev.model.thread.SnakeThread;
 public class ModelManager {
 
   private Field field;
-  private Map<CellObject, MovableThread<?>> threadsByCellObjects;
-  private List<MovableThread<?>> startModelThreads;
+  private Map<MovableObject, MovableThread<?>> threadByObject;
+  private Map<Cell, MovableObject> objectByCellObject;
 
   @Getter
   @Setter
@@ -36,8 +37,8 @@ public class ModelManager {
    * Model initialization.
    */
   public void initModel() {
-    threadsByCellObjects = new HashMap<>();
-    startModelThreads = new ArrayList<>();
+    threadByObject = new HashMap<>();
+    objectByCellObject = new HashMap<>();
     initField();
     initSnake();
     initFrogs();
@@ -48,29 +49,37 @@ public class ModelManager {
    */
   public void startModel() {
     modelIsRunning = true;
-    ExecutorService service = Executors.newFixedThreadPool(startModelThreads.size());
-    startModelThreads.forEach(service::execute);
+    ExecutorService service = Executors.newFixedThreadPool(threadByObject.size());
+    threadByObject.forEach((key, value) -> service.execute(value));
     service.shutdown();
   }
-
 
   /**
    * Stop model's threads.
    */
   public void stopModel() {
     modelIsRunning = false;
-    threadsByCellObjects.entrySet().stream()
+    threadByObject.entrySet().stream()
         .filter(entry -> entry.getValue().isLive())
         .forEach(entry -> entry.getValue().setLive(false));
   }
 
-  /**
-   * Stop frogThread and set snakeThread on CellObject.
-   */
-  public void snakeEatFrog(CellObject frogObject, MovableThread<SnakeObject> snakeThread) {
-    threadsByCellObjects.get(frogObject).setLive(false);
-    threadsByCellObjects.put(frogObject, snakeThread);
-    respawnFrog();
+  public void killFrog(Cell frogCell, MovableObject snake) {
+    MovableObject frog = objectByCellObject.get(frogCell);
+    threadByObject.get(frog).setLive(false);
+    threadByObject.remove(frog);
+    objectByCellObject.put(frogCell, snake);
+  }
+
+  public void respawnFrog() {
+    FrogObject frogObject = createFrog();
+
+    if (frogObject != null) {
+      FrogThread frogThread = new FrogThread(frogObject, field, this);
+      threadByObject.put(frogObject, frogThread);
+      Thread thread = new Thread(frogThread);
+      thread.start();
+    }
   }
 
   private void initField() {
@@ -79,28 +88,27 @@ public class ModelManager {
 
   private void initSnake() {
     int snakeSize = Config.getSnakeStartSize();
-    List<CellObject> snakeCellObjects = new ArrayList<>();
+    List<Cell> snakeCells = new ArrayList<>();
 
     for (int i = 0; i < snakeSize; i++) {
-      CellObject cellObject = new CellObject();
+      Cell cell = new Cell();
       Coords coords = new Coords(i, 0);
-      cellObject.setCoords(coords);
-      field.setCellObjectByCoords(cellObject, coords);
-      snakeCellObjects.add(cellObject);
+      cell.setCoords(coords);
+      field.setCellObjectByCoords(cell, coords);
+      snakeCells.add(cell);
     }
 
     SnakeObject snakeObject =
-        new SnakeObject(snakeCellObjects, Direction.RIGHT, Config.getSnakeStartSpeed());
+        new SnakeObject(snakeCells, Direction.RIGHT, Config.getSnakeStartSpeed());
     SnakeThread snakeThread = new SnakeThread(snakeObject, field, this);
 
-    snakeObject.updateCellObjectsTypes();
-    snakeCellObjects.forEach(cellObject -> threadsByCellObjects.put(cellObject, snakeThread));
-    startModelThreads.add(snakeThread);
+    snakeCells.forEach(cellObject -> objectByCellObject.put(cellObject, snakeObject));
+    threadByObject.put(snakeObject, snakeThread);
   }
 
   private void initFrogs() {
     int frogAmount = Config.getFrogsAmount();
-    List<FrogObject> frogObjects = new ArrayList<>();
+    List<FrogObject> frogs = new ArrayList<>();
 
     for (int i = 0; i < frogAmount; i++) {
       FrogObject object = createFrog();
@@ -109,20 +117,19 @@ public class ModelManager {
         break;
       }
 
-      frogObjects.add(object);
+      frogs.add(object);
     }
 
-    frogObjects.forEach(frogObject -> {
-      FrogThread thread = new FrogThread(frogObject, field, this);
-      threadsByCellObjects.put(frogObject.getHeadCellObject(), thread);
-      startModelThreads.add(thread);
+    frogs.forEach(frog -> {
+      FrogThread thread = new FrogThread(frog, field, this);
+      threadByObject.put(frog, thread);
     });
   }
 
   private FrogObject createFrog() {
     int fieldArea = Config.getFieldSizeX() * Config.getFieldSizeY();
 
-    if (threadsByCellObjects.size() < fieldArea) {
+    if (objectByCellObject.size() < fieldArea) {
       Random random = new Random();
       int coordX;
       int coordY;
@@ -134,30 +141,18 @@ public class ModelManager {
         coords = new Coords(coordX, coordY);
       } while (field.getCellObjectByCoords(coords) != null);
 
-      CellObject cellObject = new CellObject();
-      cellObject.setType(CellObjectType.FROG);
-      cellObject.setCoords(coords);
-      field.setCellObjectByCoords(cellObject, coords);
+      Cell cell = new Cell();
+      cell.setType(Type.FROG);
+      cell.setCoords(coords);
+      field.setCellObjectByCoords(cell, coords);
 
       Direction direction = RandomDirectionGenerator.getRandomObjectDirection();
+      FrogObject frog = new FrogObject(cell, direction, 1);
+      objectByCellObject.put(cell, frog);
 
-      return new FrogObject(cellObject, direction, 1);
+      return frog;
     }
 
     return null;
-  }
-
-  private void respawnFrog() {
-    FrogObject frogObject = createFrog();
-
-    if (frogObject != null) {
-      CellObject frogCellObject = frogObject.getHeadCellObject();
-
-      field.setCellObjectByCoords(frogCellObject, frogCellObject.getCoords());
-      FrogThread frogThread = new FrogThread(frogObject, field, this);
-      threadsByCellObjects.put(frogCellObject, frogThread);
-      Thread thread = new Thread(frogThread);
-      thread.start();
-    }
   }
 }

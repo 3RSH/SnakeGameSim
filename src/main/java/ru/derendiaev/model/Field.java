@@ -1,19 +1,19 @@
 package ru.derendiaev.model;
 
-import ru.derendiaev.model.object.CellObject;
+import ru.derendiaev.model.object.Cell;
 
 /**
  * Created by DDerendiaev on 01-Feb-22.
  */
 public class Field {
 
-  private final CellObject[][] objects;
+  private final Cell[][] objects;
 
   /**
    * Field constructor.
    */
   public Field(int fieldSizeX, int fieldSizeY) {
-    objects = new CellObject[fieldSizeX][fieldSizeY];
+    objects = new Cell[fieldSizeX][fieldSizeY];
   }
 
   /**
@@ -27,7 +27,7 @@ public class Field {
   /**
    * Get FieldObject by coordinates.
    */
-  public synchronized CellObject getCellObjectByCoords(Coords coords) {
+  public Cell getCellObjectByCoords(Coords coords) {
     if (isCollision(coords)) {
       return null;
     }
@@ -38,7 +38,7 @@ public class Field {
   /**
    * Set FieldObject by coordinates.
    */
-  public synchronized void setCellObjectByCoords(CellObject object, Coords coords) {
+  public void setCellObjectByCoords(Cell object, Coords coords) {
     if (!isCollision(coords)) {
       object.setCoords(coords);
       objects[coords.getCoordX()][coords.getCoordY()] = object;
@@ -48,7 +48,7 @@ public class Field {
   /**
    * Delete FieldObject by coordinates.
    */
-  public synchronized void deleteCellObjectByCoords(Coords coords) {
+  public void deleteCellObjectByCoords(Coords coords) {
     if (!isCollision(coords)) {
       objects[coords.getCoordX()][coords.getCoordY()] = null;
     }
