@@ -1,5 +1,6 @@
 package ru.derendiaev.model.thread;
 
+import java.beans.PropertyChangeListener;
 import ru.derendiaev.model.Coords;
 import ru.derendiaev.model.Field;
 import ru.derendiaev.model.ModelManager;
@@ -15,8 +16,10 @@ public class FrogThread extends MovableThread<FrogObject> {
   /**
    * FrogThread constructor.
    */
-  public FrogThread(FrogObject fieldObject, Field field, ModelManager manager) {
-    super(fieldObject, field, manager);
+  public FrogThread(
+      FrogObject fieldObject, Field field, ModelManager manager, PropertyChangeListener listener) {
+
+    super(fieldObject, field, manager, listener);
   }
 
   @Override
@@ -29,13 +32,14 @@ public class FrogThread extends MovableThread<FrogObject> {
 
       object.setCoords(nextCoords);
       field.setCellObjectByCoords(frogCell, nextCoords);
-    }
 
-    changeDirection();
+      observer.firePropertyChange("move", coords, nextCoords);
+    }
   }
 
   @Override
   public boolean canMove() {
+    changeDirection();
     Coords nextHeadCoords = getNextCoords();
 
     if (field.isCollision(nextHeadCoords)) {

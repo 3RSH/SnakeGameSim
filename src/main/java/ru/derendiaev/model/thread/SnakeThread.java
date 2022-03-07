@@ -1,5 +1,6 @@
 package ru.derendiaev.model.thread;
 
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,8 +20,9 @@ public class SnakeThread extends MovableThread<SnakeObject> {
   /**
    * SnakeThread constructor.
    */
-  public SnakeThread(SnakeObject fieldObject, Field field, ModelManager manager) {
-    super(fieldObject, field, manager);
+  public SnakeThread(
+      SnakeObject fieldObject, Field field, ModelManager manager, PropertyChangeListener listener) {
+    super(fieldObject, field, manager, listener);
   }
 
   @Override
@@ -33,14 +35,25 @@ public class SnakeThread extends MovableThread<SnakeObject> {
 
         manager.killFrog(frogCell, object);
         object.growSnake(frogCell);
+
+        List<Cell> snakeCells = getSnakeCells();
+        List<Coords> snakeCoords = snakeCells.stream().map(Cell::getCoords)
+            .collect(Collectors.toList());
+        observer.firePropertyChange("grow", null, snakeCoords);
+
         manager.respawnFrog();
 
       } else {
         List<Cell> snakeCells = getSnakeCells();
-        field.deleteCellObjectByCoords(object.getTailCoords());
+        Coords tailCoords = object.getTailCoords();
+        field.deleteCellObjectByCoords(tailCoords);
         object.setCoords(nextCoords);
         snakeCells
             .forEach(cellObject -> field.setCellObjectByCoords(cellObject, cellObject.getCoords()));
+        List<Coords> newCoords = snakeCells.stream().map(Cell::getCoords)
+            .collect(Collectors.toList());
+
+        observer.firePropertyChange("move", tailCoords, newCoords);
       }
     }
   }
@@ -50,18 +63,20 @@ public class SnakeThread extends MovableThread<SnakeObject> {
     Coords nextHeadCoords = getNextCoords();
     Cell nextCell = field.getCellObjectByCoords(nextHeadCoords);
 
-    if (field.isCollision(nextHeadCoords)
-        || nextCell == null
-        || nextCell.getType() == Type.FROG) {
-
-      throw new StopModelException();
+    if ((nextCell == null && !field.isCollision(nextHeadCoords))
+        || (nextCell != null && nextCell.getType() == Type.FROG)) {
+      return true;
     }
 
-    return true;
+    throw new StopModelException();
   }
 
   private boolean canGrow(Coords nextHeadCoords) {
-    return field.getCellObjectByCoords(nextHeadCoords).getType() == Type.FROG;
+    if (field.getCellObjectByCoords(nextHeadCoords) != null) {
+      return field.getCellObjectByCoords(nextHeadCoords).getType() == Type.FROG;
+    }
+
+    return false;
   }
 
   private List<Cell> getSnakeCells() {

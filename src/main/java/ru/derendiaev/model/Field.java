@@ -38,10 +38,10 @@ public class Field {
   /**
    * Set FieldObject by coordinates.
    */
-  public void setCellObjectByCoords(Cell object, Coords coords) {
+  public void setCellObjectByCoords(Cell cellObject, Coords coords) {
     if (!isCollision(coords)) {
-      object.setCoords(coords);
-      objects[coords.getCoordX()][coords.getCoordY()] = object;
+      cellObject.setCoords(coords);
+      objects[coords.getCoordX()][coords.getCoordY()] = cellObject;
     }
   }
 
