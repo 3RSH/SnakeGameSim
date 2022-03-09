@@ -46,7 +46,7 @@ public abstract class MovableThread<T extends MovableObject> implements Runnable
     while (isLive) {
       synchronized (field) {
         try {
-          if (canMove()) {
+          if (canMove() && isLive) {
             move();
           }
         } catch (StopModelException e) {
@@ -55,7 +55,7 @@ public abstract class MovableThread<T extends MovableObject> implements Runnable
       }
 
       try {
-        sleep(1000 / object.getSpeed());
+        sleep(5000 / object.getSpeed());
       } catch (InterruptedException e) {
         e.printStackTrace();
       }

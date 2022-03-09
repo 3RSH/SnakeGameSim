@@ -27,34 +27,32 @@ public class SnakeThread extends MovableThread<SnakeObject> {
 
   @Override
   public void move() {
-    synchronized (field) {
-      Coords nextCoords = getNextCoords();
+    Coords nextCoords = getNextCoords();
 
-      if (canGrow(nextCoords)) {
-        Cell frogCell = field.getCellObjectByCoords(nextCoords);
+    if (canGrow(nextCoords)) {
+      Cell frogCell = field.getCellObjectByCoords(nextCoords);
 
-        manager.killFrog(frogCell, object);
-        object.growSnake(frogCell);
+      manager.killFrog(frogCell, object);
+      object.growSnake(frogCell);
 
-        List<Cell> snakeCells = getSnakeCells();
-        List<Coords> snakeCoords = snakeCells.stream().map(Cell::getCoords)
-            .collect(Collectors.toList());
-        observer.firePropertyChange("grow", null, snakeCoords);
+      List<Cell> snakeCells = getSnakeCells();
+      List<Coords> snakeCoords = snakeCells.stream().map(Cell::getCoords)
+          .collect(Collectors.toList());
+      observer.firePropertyChange("grow", null, snakeCoords);
 
-        manager.respawnFrog();
+      manager.respawnFrog();
 
-      } else {
-        List<Cell> snakeCells = getSnakeCells();
-        Coords tailCoords = object.getTailCoords();
-        field.deleteCellObjectByCoords(tailCoords);
-        object.setCoords(nextCoords);
-        snakeCells
-            .forEach(cellObject -> field.setCellObjectByCoords(cellObject, cellObject.getCoords()));
-        List<Coords> newCoords = snakeCells.stream().map(Cell::getCoords)
-            .collect(Collectors.toList());
+    } else {
+      List<Cell> snakeCells = getSnakeCells();
+      Coords tailCoords = object.getTailCoords();
+      field.deleteCellObjectByCoords(tailCoords);
+      object.setCoords(nextCoords);
+      snakeCells
+          .forEach(cellObject -> field.setCellObjectByCoords(cellObject, cellObject.getCoords()));
+      List<Coords> newCoords = snakeCells.stream().map(Cell::getCoords)
+          .collect(Collectors.toList());
 
-        observer.firePropertyChange("move", tailCoords, newCoords);
-      }
+      observer.firePropertyChange("move", tailCoords, newCoords);
     }
   }
 

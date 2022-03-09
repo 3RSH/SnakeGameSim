@@ -24,17 +24,15 @@ public class FrogThread extends MovableThread<FrogObject> {
 
   @Override
   public void move() {
-    synchronized (field) {
-      Coords coords = object.getCoords();
-      Coords nextCoords = getNextCoords();
-      Cell frogCell = field.getCellObjectByCoords(coords);
-      field.deleteCellObjectByCoords(coords);
+    Coords coords = object.getCoords();
+    Coords nextCoords = getNextCoords();
+    Cell frogCell = field.getCellObjectByCoords(coords);
+    field.deleteCellObjectByCoords(coords);
 
-      object.setCoords(nextCoords);
-      field.setCellObjectByCoords(frogCell, nextCoords);
+    object.setCoords(nextCoords);
+    field.setCellObjectByCoords(frogCell, nextCoords);
 
-      observer.firePropertyChange("move", coords, nextCoords);
-    }
+    observer.firePropertyChange("move", coords, nextCoords);
   }
 
   @Override
@@ -42,7 +40,7 @@ public class FrogThread extends MovableThread<FrogObject> {
     changeDirection();
     Coords nextHeadCoords = getNextCoords();
 
-    if (field.isCollision(nextHeadCoords)) {
+    if (!isLive || field.isCollision(nextHeadCoords)) {
       return false;
     }
 

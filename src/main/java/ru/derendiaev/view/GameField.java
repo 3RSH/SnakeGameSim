@@ -16,7 +16,6 @@ import javax.swing.JPanel;
 import lombok.Getter;
 import lombok.Setter;
 import ru.derendiaev.Config;
-import ru.derendiaev.model.Coords;
 
 /**
  * Created by DDerendiaev on 13-Jan-22.
@@ -37,6 +36,8 @@ public class GameField extends JPanel {
 
   @Getter
   private boolean inGame;
+
+  public boolean modelIsRunning;
 
 
   /**
@@ -60,6 +61,9 @@ public class GameField extends JPanel {
 
     if (!inGame) {
       paintTitle(g);
+    } else if (!modelIsRunning) {
+      paintPoints();
+      paintGameOver();
     }
   }
 
@@ -73,7 +77,8 @@ public class GameField extends JPanel {
   public void startGame() {
     points = 0;
     inGame = true;
-    repaint();
+
+    clearField();
     observer.firePropertyChange("startGame", false, true);
   }
 
@@ -89,9 +94,8 @@ public class GameField extends JPanel {
   /**
    * Frog repaint.
    */
-  public void repaintFrog(Coords past, Coords present) {
+  public void repaintFrog(ViewCoords past, ViewCoords present) {
     Graphics g = this.getGraphics();
-    clearPoints(g);
 
     int coordX;
     int coordY;
@@ -106,15 +110,13 @@ public class GameField extends JPanel {
     coordX = present.getCoordX() * cellSize;
     coordY = present.getCoordY() * cellSize;
     g.drawImage(frog, coordX, coordY, this);
-    paintPoints(g);
   }
 
   /**
    * Snake repaint.
    */
-  public void repaintSnake(Coords past, List<Coords> present) {
+  public void repaintSnake(ViewCoords past, List<ViewCoords> present) {
     Graphics g = this.getGraphics();
-    clearPoints(g);
 
     if (past != null) {
       int coordX = past.getCoordX() * cellSize;
@@ -124,7 +126,6 @@ public class GameField extends JPanel {
     }
 
     paintSnake(present, g);
-    paintPoints(g);
   }
 
 
@@ -153,6 +154,34 @@ public class GameField extends JPanel {
         cellSize * Config.getFieldSizeY() / 2);
   }
 
+  /**
+   * Paint points.
+   */
+  public void paintPoints() {
+    Graphics g = this.getGraphics();
+
+    String message = "POINTS " + points;
+    Font font = new Font("Monospaced", Font.BOLD, cellSize);
+    g.setColor(Color.white);
+    g.setFont(font);
+    g.drawString(message, (cellSize * (Config.getFieldSizeX() - 7)),
+        cellSize * 2);
+  }
+
+  /**
+   * Clear points value picture.
+   */
+  public void clearPoints() {
+    Graphics g = this.getGraphics();
+
+    String message = String.valueOf(points);
+    Font font = new Font("Monospaced", Font.BOLD, cellSize);
+    g.setColor(Color.black);
+    g.setFont(font);
+    g.drawString(message, (cellSize * (Config.getFieldSizeX() - 2) - 10),
+        cellSize * 2);
+  }
+
   private void loadImages() {
     ClassLoader classLoader = getClass().getClassLoader();
 
@@ -173,7 +202,7 @@ public class GameField extends JPanel {
     frog = frogIcon.getImage();
   }
 
-  private void paintSnake(List<Coords> coords, Graphics g) {
+  private void paintSnake(List<ViewCoords> coords, Graphics g) {
     int cellX;
     int cellY;
 
@@ -209,19 +238,11 @@ public class GameField extends JPanel {
         (cellSize * Config.getFieldSizeY() / 2) + 20);
   }
 
-  private void paintPoints(Graphics g) {
-    String message = "POINTS " + points;
-    Font font = new Font("Monospaced", Font.BOLD, cellSize);
-    g.setColor(Color.white);
-    g.setFont(font);
-    g.drawString(message, (cellSize * (Config.getFieldSizeX() - 7)),
-        cellSize * 2);
-  }
-
-  private void clearPoints(Graphics g) {
+  private void clearField() {
+    Graphics g = this.getGraphics();
     g.setColor(Color.BLACK);
-    g.fillRect(cellSize * (Config.getFieldSizeX() - 3), cellSize,
-        cellSize * 3, cellSize);
+    g.fillRect(0, 0,
+        getWidth(), getHeight());
   }
 
 

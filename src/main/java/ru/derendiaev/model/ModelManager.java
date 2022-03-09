@@ -115,7 +115,7 @@ public class ModelManager {
    * Increment snake-object speed.
    */
   public void incrementSnakeSpeed() {
-    snakeObject.setSpeed(snakeObject.getSpeed() + 1);
+    snakeObject.setSpeed(snakeObject.getSpeed() + 5);
   }
 
   /**

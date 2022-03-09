@@ -39,7 +39,7 @@ public class Field {
    * Set FieldObject by coordinates.
    */
   public void setCellObjectByCoords(Cell cellObject, Coords coords) {
-    if (!isCollision(coords)) {
+    if (!isCollision(coords) && cellObject != null) {
       cellObject.setCoords(coords);
       objects[coords.getCoordX()][coords.getCoordY()] = cellObject;
     }

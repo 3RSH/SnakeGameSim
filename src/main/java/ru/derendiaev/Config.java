@@ -20,10 +20,10 @@ public class Config {
   private static int snakeStartSize = 3;
 
   @Getter
-  private static int snakeStartSpeed = 2;
+  private static int snakeStartSpeed = 10;
 
   @Getter
-  private static int frogsAmount = 10;
+  private static int frogsAmount = 6;
 
   protected static void setCustomParam(String[] args) {
     if (isCorrectX(Integer.parseInt(args[0]))) {
@@ -38,6 +38,8 @@ public class Config {
     if (isCorrectStartSpeed(Integer.parseInt(args[3]))) {
       snakeStartSpeed = Integer.parseInt(args[3]);
     }
+
+    frogsAmount = (fieldSizeX + fieldSizeY) / 10;
   }
 
   private static boolean isCorrectX(int fieldX) {
@@ -55,6 +57,6 @@ public class Config {
   }
 
   private static boolean isCorrectStartSpeed(int startSpeed) {
-    return startSpeed > 0 && startSpeed < 11;
+    return startSpeed > 4 && startSpeed < 50;
   }
 }
