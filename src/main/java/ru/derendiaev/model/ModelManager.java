@@ -68,7 +68,7 @@ public class ModelManager {
   /**
    * Run model's threads.
    */
-  public void startModel() {
+  public synchronized void startModel() {
     modelIsRunning = true;
     ExecutorService service = Executors.newFixedThreadPool(threadByObject.size());
     threadByObject.forEach((key, value) -> service.execute(value));
@@ -78,7 +78,7 @@ public class ModelManager {
   /**
    * Stop model's threads.
    */
-  public void stopModel() {
+  public synchronized void stopModel() {
     modelIsRunning = false;
     threadByObject.entrySet().stream()
         .filter(entry -> entry.getValue().isLive())
@@ -90,7 +90,7 @@ public class ModelManager {
   /**
    * Kill frog-thread.
    */
-  public void killFrog(Cell frogCell, MovableObject snake) {
+  public synchronized void killFrog(Cell frogCell, MovableObject snake) {
     MovableObject frog = objectByCellObject.get(frogCell);
     threadByObject.get(frog).setLive(false);
     threadByObject.remove(frog);
@@ -100,7 +100,7 @@ public class ModelManager {
   /**
    * Create new frog-thread.
    */
-  public void respawnFrog() {
+  public synchronized void respawnFrog() {
     FrogObject frogObject = createFrog();
 
     if (frogObject != null) {

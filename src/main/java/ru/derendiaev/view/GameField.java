@@ -5,8 +5,8 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.List;
@@ -51,7 +51,7 @@ public class GameField extends JPanel {
 
     Dimension gameFieldDimension = new Dimension(sizeX, sizeY);
     setPreferredSize(gameFieldDimension);
-    addMouseListener(new MouseListener());
+    addMouseListener(new MouseEventListener());
     loadImages();
   }
 
@@ -246,11 +246,15 @@ public class GameField extends JPanel {
   }
 
 
-  private class MouseListener extends MouseAdapter {
+  private class MouseEventListener implements MouseListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
-      super.mouseClicked(e);
+
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
       int clickedButton = e.getButton();
 
       if (clickedButton == MouseEvent.BUTTON1) {
@@ -258,6 +262,21 @@ public class GameField extends JPanel {
       } else if (clickedButton == MouseEvent.BUTTON3) {
         observer.firePropertyChange("changeDirection", false, true);
       }
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+
     }
   }
 }
